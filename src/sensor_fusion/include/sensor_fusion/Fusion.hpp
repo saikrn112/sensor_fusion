@@ -6,7 +6,7 @@
 #include <sensor_msgs/NavSatFix.h>
 #include <nav_msgs/Odometry.h>
 #include <armadillo>
-#include <include/Defs.hpp>
+#include <sensor_fusion/Defs.hpp>
 
 namespace Fusion{
   class Ekf{
@@ -22,9 +22,9 @@ namespace Fusion{
     ros::Publisher pub;
 
     //State Variables vector
-    arma::vec<double> state_;
+    arma::vec state_;
     //Process Covariance
-    arma::mat<double> processCovariance(STATE_SIZE,STATE_SIZE);
+    arma::mat processCovariance;
 
   public:
     // Constructor
