@@ -27,7 +27,6 @@ processCovariance(STATE_SIZE,STATE_SIZE)
 
   pub = nh_.advertise<nav_msgs::Odometry>("/odomCombined",1,true);
 
-
 }
 
 Fusion::Ekf::~Ekf(){
