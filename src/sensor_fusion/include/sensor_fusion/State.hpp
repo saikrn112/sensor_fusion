@@ -8,6 +8,7 @@
 
 namespace Fusion{
   class State{
+  private:
     ros::Time time;
     int size ;
     double pe;
@@ -20,7 +21,9 @@ namespace Fusion{
     double da_x;
     double da_y;
     double da_z;
-
+    arma::mat processCovariance;
+  public:
+    void getStateTime(ros::Time&);
   };
 }
 

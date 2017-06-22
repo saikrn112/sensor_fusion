@@ -9,6 +9,8 @@ namespace Fusion{
   class Ekf{
   private:
     int a;
+
+    // Local NodeHandle
     ros::NodeHandle nh_;
     // Sensor Callbacks
     void imu_cb(const sensor_msgs::Imu& ); // Imu Callback
@@ -17,11 +19,6 @@ namespace Fusion{
     // Subscribers and Publisher objects
     ros::Subscriber imuSub, odomSub, gpsSub;
     ros::Publisher pub;
-
-    //State Variables vector
-    arma::vec state_;
-    //Process Covariance
-    arma::mat processCovariance;
 
   public:
     // Constructor
@@ -34,7 +31,7 @@ namespace Fusion{
     // specified time stamp
     bool updateAngularVelocities(const sensor_msgs::Imu& );
     bool updateBodyAccelerations(const sensor_msgs::Imu& );
-    bool updateQuaternion(const sensor_msgs::Imu& );
+    bool updateQuaternion(const sensor_msgs::Imu& , State state_ );
     // Current state vector
     void getCurrentState(void);
 
