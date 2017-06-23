@@ -16,10 +16,8 @@ void Fusion::Ekf::odom_cb(const nav_msgs::Odometry& msg){
 }
 
 Fusion::Ekf::Ekf(ros::NodeHandle* nodeHandle):
-nh_(*nodeHandle),
-state_(STATE_SIZE),
-processCovariance(STATE_SIZE,STATE_SIZE)
-{
+nh_(*nodeHandle)
+  {
   ROS_INFO("Got the Node Handle. Initialising IMU, GPS and Odometry Callback");
   imuSub = nh_.subscribe("/imu",1,&Fusion::Ekf::imu_cb,this);
   gpsSub = nh_.subscribe("/fix",1,&Fusion::Ekf::gps_cb,this);
