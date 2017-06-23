@@ -3,7 +3,6 @@
 
 #include <sensor_fusion/State.hpp>
 #include <sensor_fusion/Defs.hpp>
-#include <armadillo>
 
 namespace Fusion{
   class Ekf{

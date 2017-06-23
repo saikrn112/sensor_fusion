@@ -4,7 +4,8 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <nav_msgs/Odometry.h>
-#include <tf2/LinearMath/Quaternion .h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <armadillo>
 
 namespace Fusion{
   class State{
