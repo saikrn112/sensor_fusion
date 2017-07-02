@@ -4,14 +4,17 @@ using namespace std;
 using namespace arma;
 
 void Fusion::Ekf::imu_cb(const sensor_msgs::Imu& msg){
+  addMeasurementinQueue(msg,ros::time::Now());
   ROS_INFO("in Imu call back");
 }
 
 void Fusion::Ekf::gps_cb(const sensor_msgs::NavSatFix& msg){
+  addMeasurementinQueue(msg, ros::time::Now());
   ROS_INFO("in gps call back");
 }
 
 void Fusion::Ekf::odom_cb(const nav_msgs::Odometry& msg){
+  addMeasurementinQueue(msg, ros::time::Now());
   ROS_INFO("in odom call back");
 }
 
@@ -24,7 +27,7 @@ nh_(*nodeHandle)
   odomSub = nh_.subscribe("/odom",1,&Fusion::Ekf::odom_cb,this);
 
   pub = nh_.advertise<nav_msgs::Odometry>("/odomCombined",1,true);
-
+  
 }
 
 Fusion::Ekf::~Ekf(){
