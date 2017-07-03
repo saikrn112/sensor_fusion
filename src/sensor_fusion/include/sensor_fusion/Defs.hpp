@@ -42,10 +42,10 @@ namespace Fusion{
     StateMagneticX,
     StateMagneticY,
     StateMagneticZ
-  }; // States
+  }; // 24 States
 
 
-}
+} // namespace Fusion
 
 
 #endif
