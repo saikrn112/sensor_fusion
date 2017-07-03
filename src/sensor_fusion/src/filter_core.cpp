@@ -6,12 +6,13 @@ using namespace arma;
 
 namespace FilterCore {
   // Constructor
-  EkfCore::EkfCore {
+  EkfCore::EkfCore() {
 
   }
 
-  // Destructor
-  EkfCore::~EkfCore {
+    // Destructor
+  EkfCore::~EkfCore() {
+
   }
 
   void EkfCore::predict(const double delta){
@@ -150,9 +151,7 @@ namespace FilterCore {
     processMatrixJacobian_(StateQuaternion3,StateDeltaAngleBiasY) = -q1/2;
     processMatrixJacobian_(StateQuaternion3,StateDeltaAngleBiasZ) = -q0/2;
 
-
-
-    // projecting state forward till lastFilterTime+delta   @TODO need to incorporate lastFilterTime parameter
+    // projecting state forward till lastFilterTime+delta
     state_ = processMatrix_*state_;
 
     // Project the process noise covariance forward @TODO need to initialise estimateErrorCovariance_ and processNoiseCovariance_
@@ -163,7 +162,7 @@ namespace FilterCore {
   } // method EkfCore::process
 
   void EkfCore::update(const sensorMeasurements& measurement){
-
+    
   } // method EkfCore::update
 
 }// namespace FilterCore

@@ -1,8 +1,12 @@
 #ifndef FUSION_HPP
 #define FUSION_HPP
 
-#include <sensor_fusion/State.hpp>
+#include <ros/ros.h>
+#include <sensor_msgs/Imu.h>
+#include <sensor_msgs/NavSatFix.h>
+#include <nav_msgs/Odometry.h>
 #include <sensor_fusion/Defs.hpp>
+#include <armadillo>
 
 namespace Fusion{
   class Ekf{
@@ -30,7 +34,7 @@ namespace Fusion{
     // specified time stamp
     bool updateAngularVelocities(const sensor_msgs::Imu& );
     bool updateBodyAccelerations(const sensor_msgs::Imu& );
-    bool updateQuaternion(const sensor_msgs::Imu& , State state_ );
+    bool updateQuaternion(const sensor_msgs::Imu& , const arma::colvec& state_ );
     // Current state vector
     void getCurrentState(void);
 

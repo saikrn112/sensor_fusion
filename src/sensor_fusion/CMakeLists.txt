@@ -55,7 +55,7 @@ include_directories(include
 # add_dependencies(sensor_fusion ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(sensor_fusion_node src/fusion_node.cpp src/fusion.cpp)
+add_executable(sensor_fusion_node src/fusion_node.cpp src/fusion.cpp src/filter_core.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above

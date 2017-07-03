@@ -1,7 +1,7 @@
 #ifndef DEFS_HPP
 #define DEFS_HPP
 
-namespace Fusion{
+namespace FilterCore{
   const int POSITION_SIZE = 3;
   const int VELOCITY_SIZE = 3;
   const int ACCELERATION_SIZE = 4;
