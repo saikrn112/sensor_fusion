@@ -4,6 +4,7 @@
 using namespace std;
 using namespace arma;
 
+namespace Fusion{
 namespace FilterCore {
   // Constructor
   EkfCore::EkfCore() {
@@ -161,8 +162,9 @@ namespace FilterCore {
 
   } // method EkfCore::process
 
-  void EkfCore::update(const sensorMeasurements& measurement){
-
+  void EkfCore::update(const SensorMeasurement& measurement){
+      
   } // method EkfCore::update
 
 }// namespace FilterCore
+}// namespace Fusion

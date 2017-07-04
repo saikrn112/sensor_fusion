@@ -16,7 +16,7 @@ namespace FilterCore {
 
       std::vector<int> updateVector_;
       double time_;
-      bool operator()(const boost::shared_ptr<SensorMeasurment> &a, const boost::shared_ptr<SensorMeasurment> &b){
+      bool operator()(const boost::shared_ptr<SensorMeasurement> &a, const boost::shared_ptr<SensorMeasurement> &b){
         return (*this)(*a.get(),*(b.get()));
       }
       bool operator()(const SensorMeasurement &a, const SensorMeasurement &b){
@@ -24,28 +24,28 @@ namespace FilterCore {
       }
 
       SensorMeasurement():
-      topiName_(""),
+      topicName_(""),
       time_(0.0){
 
       }
     };
     typedef boost::shared_ptr<SensorMeasurement> SensorMeasurementPtr;
-    //
-    // struct FusedState{
-    //   arma::colvec state_;
-    //   arma::mat estimateErrorCovariance_;
-    //   double lastMeasurementTime_;
-    //   bool operator()(cosnst FusedState &a, const FusedState &b){
-    //     return a.lastMeasurementTime_<b.lastMeasurementTime_;
-    //   }
-    //   FusedState():
-    //   state_(),
-    //   estimateErrorCovariance_(),
-    //   lastMeasurementTime_(0.0),{
-    //
-    //   }
-    // };
 
+    struct FusedState{
+      arma::colvec state_;
+      arma::mat estimateErrorCovariance_;
+      double lastMeasurementTime_;
+      bool operator()(const FusedState &a, const FusedState &b){
+        return a.lastMeasurementTime_<b.lastMeasurementTime_;
+      }
+      FusedState():
+      state_(),
+      estimateErrorCovariance_(),
+      lastMeasurementTime_(0.0){
+
+      }
+    };
+    typedef boost::shared_ptr<FusedState> FusedStatePtr;
 
 
   /** Extended Kalman Filter Equations
@@ -85,9 +85,10 @@ namespace FilterCore {
   public:
     EkfCore(); // all the inital parmeters will be updated as the equations are written
     ~EkfCore(); // Close all the files delete all the new type of pointers
+
     // Core functions of the Filter
     void predict (const double delta);
-    void update (const sensorMeasurements& measurement);
+    void update (const SensorMeasurement& measurement);
 
     // Getters and setters;
     const arma::colvec& getState();
