@@ -30,21 +30,21 @@ namespace FilterCore {
       }
     };
     typedef boost::shared_ptr<SensorMeasurement> SensorMeasurementPtr;
-
-    struct FusedState{
-      arma::colvec state_;
-      arma::mat estimateErrorCovariance_;
-      double lastMeasurementTime_;
-      bool operator()(cosnst FusedState &a, const FusedState &b){
-        return a.lastMeasurementTime_<b.lastMeasurementTime_;
-      }
-      FusedState():
-      state_(),
-      estimateErrorCovariance_(),
-      lastMeasurementTime_(0.0),{
-
-      }
-    };
+    //
+    // struct FusedState{
+    //   arma::colvec state_;
+    //   arma::mat estimateErrorCovariance_;
+    //   double lastMeasurementTime_;
+    //   bool operator()(cosnst FusedState &a, const FusedState &b){
+    //     return a.lastMeasurementTime_<b.lastMeasurementTime_;
+    //   }
+    //   FusedState():
+    //   state_(),
+    //   estimateErrorCovariance_(),
+    //   lastMeasurementTime_(0.0),{
+    //
+    //   }
+    // };
 
 
 
@@ -62,11 +62,14 @@ namespace FilterCore {
   **/
   class EkfCore {
   private: //@TODO make sure that all the matrices are properly initialised while constructing the class
-    // arma::colvec state_;
+    arma::colvec state_;
+    arma::colvec predictedState_;
     arma::mat processMatrix_;              // f
     arma::mat processMatrixJacobian_;      // F
-    // arma::mat estimateErrorCovariance_;    // P
+    arma::mat estimateErrorCovariance_;    // P
     arma::mat processNoiseCovariance_;     // Q
+    arma::mat covarianceEpsilon_;
+    arma::mat identity_;
     // arma::mat measurementNoiseCovariance_; // R
     /*arma::mat imuNoiseCovariance_;         // R*/
     /*arma::mat disturbanceInfluenceMatrix_; // L need to confirm about this approach*/
@@ -74,7 +77,11 @@ namespace FilterCore {
 
 
     /* Parameter declarations */
-    double lastFilterTime;
+    double lastFilterTime_;
+    double lastMeasurementTime_;
+    double lastUpdateTime_;
+    bool isInitialised_;
+
   public:
     EkfCore(); // all the inital parmeters will be updated as the equations are written
     ~EkfCore(); // Close all the files delete all the new type of pointers
@@ -83,20 +90,28 @@ namespace FilterCore {
     void update (const sensorMeasurements& measurement);
 
     // Getters and setters;
-    arma::colvec& getState();
-    arma::mat& getProcessMatrix();
-    arma::mat& getProcessMatrixJacobian();
-    arma::mat& getEstimateErrorCovariance();
-    arma::mat& getProcessNoiseCovariance();
-    arma::mat& getMeasurementNoiseCovariance();
+    const arma::colvec& getState();
+    const arma::colvec& getPredictedState();
+    const arma::mat& getProcessMatrix();
+    const arma::mat& getProcessMatrixJacobian();
+    const arma::mat& getEstimateErrorCovariance();
+    const arma::mat& getProcessNoiseCovariance();
+    // arma::mat& getMeasurementNoiseCovariance();
+    bool getInitialisedStatus();
+    double getLastFilterTime();
+    double getLastMeasurementTime();
+    double getLastUpdateTime();
 
     void setState(const arma::colvec&);
     void setProcessMatrix(const arma::mat&);
     void setProcessMatrixJacobian(const arma::mat&);
     void setEstimateErrorCovariance(const arma::mat&);
     void setProcessNoiseCovariance(const arma::mat&);
-    void setMeasurementNoiseCovariance(const arma::mat&);
-
+    // void setMeasurementNoiseCovariance(const arma::mat&);
+    void setInitialisedStatus(bool);
+    void setLastFilterTime(double);
+    void setLastMeasurementTime(double);
+    void setLastUpdateTime(double);
   }; // Class EkfCore
 
 
