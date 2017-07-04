@@ -7,7 +7,30 @@ using namespace arma;
 namespace Fusion{
   namespace FilterCore{
   // Constructor
-  EkfCore::EkfCore() {
+  EkfCore::EkfCore():
+  state_(STATE_SIZE),
+  predictedState_(STATE_SIZE),
+  processMatrix_(STATE_SIZE,STATE_SIZE),
+  processMatrixJacobian_(STATE_SIZE,STATE_SIZE),
+  estimateErrorCovariance_(STATE_SIZE,STATE_SIZE),
+  processNoiseCovariance_(STATE_SIZE,STATE_SIZE),
+  covarianceEpsilon_(STATE_SIZE,STATE_SIZE),
+  identity_(STATE_SIZE,STATE_SIZE),
+  lastFilterTime_(0.0),
+  lastMeasurementTime_(0.0),
+  lastUpdateTime_(0.0),
+  isInitialised_(false){
+    state_.zeros();
+    predictedState_.zeros();
+    processMatrix_.eye();
+    estimateErrorCovariance_.eye();
+    estimateErrorCovariance_*=1e-9;
+    processNoiseCovariance_.eye();
+    processNoiseCovariance_*=1e-9;
+    covarianceEpsilon_.eye();
+    covarianceEpsilon_*=1e-9;
+    identity_.eye();
+
 
   }
 
@@ -15,7 +38,9 @@ namespace Fusion{
   EkfCore::~EkfCore() {
 
   }
-
+  void EkfCore::setProcessNoiseCovariance(const arma::mat& processNoiseCovariance){
+    processNoiseCovariance_= processNoiseCovariance;
+  }
   void EkfCore::predict(const double delta){
     /* Temporary Variables */
     // Quaternion components

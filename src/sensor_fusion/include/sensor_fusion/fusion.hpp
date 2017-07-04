@@ -7,17 +7,19 @@
 #include <nav_msgs/Odometry.h>
 #include <sensor_fusion/filter_core.h>
 #include <sensor_fusion/defs.hpp>
+
+#include <XmlRpcException.h>
+
 #include <armadillo>
 
 namespace Fusion{
   namespace RosIntegration{
-
-
-    class Ekf : public Fusion::FilterCore::EkfCore {
+    class Ekf  {
     private:
-      int a;
+      int placeHolder_;
       // Local NodeHandle
       ros::NodeHandle nh_;
+      ros::NodeHandle nhPriv_;
       // Sensor Callbacks
       void imu_cb(const sensor_msgs::Imu& ); // Imu Callback
       void gps_cb(const sensor_msgs::NavSatFix& ); // GPS callback
@@ -25,7 +27,7 @@ namespace Fusion{
       // Subscribers and Publisher objects
       ros::Subscriber imuSub, odomSub, gpsSub;
       ros::Publisher pub;
-
+      FilterCore::EkfCore filter_;
     public:
 
       Ekf(ros::NodeHandle*); // Constructor

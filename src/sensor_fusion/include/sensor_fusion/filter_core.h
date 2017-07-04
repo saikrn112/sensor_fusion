@@ -55,14 +55,14 @@ namespace Fusion {
   * Predicted covariance estimate  - P_k|k-1 = F_k-1*P_k-1|k-1*F_k-1' + L_k-1*Q_k-1*L_k-1'
   *** Update step
   * Innovation residual   - y_k = z_k - h(x_k|k-1)
-  * Innovation Covariance - S_k = H_k*P_k|k-1*H_k' + M_k*R_k*M_k'
-  * Optimal Kalman Gain   - K_k = P_k|k-1*H_k'*S_k^(-1)
+  * Innovation Covariance - S_k = H_k*P_k|k-1*H_k' + M_k*R_k*M_k' * Optimal Kalman Gain   - K_k = P_k|k-1*H_k'*S_k^(-1)
   **/
   class EkfCore {
   private: //@TODO make sure that all the matrices are properly initialised while constructing the class
     arma::colvec state_;
     arma::colvec predictedState_;
     arma::mat processMatrix_;              // f
+    const arma::mat& getProcessNoiseCovariance();
     arma::mat processMatrixJacobian_;      // F
     arma::mat estimateErrorCovariance_;    // P
     arma::mat processNoiseCovariance_;     // Q
@@ -94,7 +94,6 @@ namespace Fusion {
     const arma::mat& getProcessMatrix();
     const arma::mat& getProcessMatrixJacobian();
     const arma::mat& getEstimateErrorCovariance();
-    const arma::mat& getProcessNoiseCovariance();
     // arma::mat& getMeasurementNoiseCovariance();
     bool getInitialisedStatus();
     double getLastFilterTime();
