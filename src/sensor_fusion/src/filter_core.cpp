@@ -162,7 +162,7 @@ namespace FilterCore {
   } // method EkfCore::process
 
   void EkfCore::update(const sensorMeasurements& measurement){
-    
+
   } // method EkfCore::update
 
 }// namespace FilterCore
