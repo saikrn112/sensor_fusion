@@ -5,7 +5,6 @@ using namespace std;
 using namespace arma;
 
 namespace Fusion{
-namespace FilterCore {
   // Constructor
   EkfCore::EkfCore() {
 
@@ -163,8 +162,130 @@ namespace FilterCore {
   } // method EkfCore::process
 
   void EkfCore::update(const SensorMeasurement& measurement){
-      
+
+    // We don't want to update everything, so we need to build matrices that only update
+    // the measured parts of our state vector. Throughout prediction and correction, we
+    // attempt to maximize efficiency in Eigen.
+
+    // First, determine how many state vector values we're updating
+    // We will create 3 cases - IMU - GPS - Odometry
+    // @TODO  preprocessing data;
+    // std::vector<size_t> updateIndices;
+    // for (size_t i = 0; i < measurement.updateVector_.size(); ++i)
+    // {
+    // if (measurement.updateVector_[i])
+    // {
+    //   // Handle nan and inf values in measurements
+    //   if (std::isnan(measurement.measurement_(i)))
+    //   {
+    //     ROS_DEBUG_STREAM("Value at index " << i << " was nan. Excluding from update.\n");
+    //
+    //   }
+    //   else if (std::isinf(measurement.measurement_(i)))
+    //   {
+    //     ROS_DEBUG_STREAM("Value at index " << i << " was inf. Excluding from update.\n");
+    //   }
+    //   else
+    //   {
+    //     updateIndices.push_back(i);
+    //   }
+    // }
+    // }
+    //
+    // ROS_DEBUG_STREAM("Update indices are:\n" << updateIndices << "\n");
+    //
+    // size_t updateSize = updateIndices.size();
+    //
+    // // Now set up the relevant matrices
+    // arma::colvec stateSubset(updateSize);                              // x (in most literature)
+    // arma::colvec measurementSubset(updateSize);                        // z
+    // arma::mat measurementCovarianceSubset(updateSize, updateSize);  // R
+    // arma::mat stateToMeasurementSubset(updateSize, state_.rows());  // H
+    // arma::mat kalmanGainSubset(state_.rows(), updateSize);          // K
+    // arma::colvec innovationSubset(updateSize);                         // z - Hx
+    //
+    // stateSubset.setZero();
+    // measurementSubset.setZero();
+    // measurementCovarianceSubset.setZero();
+    // stateToMeasurementSubset.setZero();
+    // kalmanGainSubset.setZero();
+    // innovationSubset.setZero();
+    //
+    // // Now build the sub-matrices from the full-sized matrices
+    // for (size_t i = 0; i < updateSize; ++i)
+    // {
+    // measurementSubset(i) = measurement.measurement_(updateIndices[i]);
+    // stateSubset(i) = state_(updateIndices[i]);
+    //
+    // for (size_t j = 0; j < updateSize; ++j)
+    // {
+    //   measurementCovarianceSubset(i, j) = measurement.covariance_(updateIndices[i], updateIndices[j]);
+    // }
+    //
+    // // Handle negative (read: bad) covariances in the measurement. Rather
+    // // than exclude the measurement or make up a covariance, just take
+    // // the absolute value.
+    // if (measurementCovarianceSubset(i, i) < 0)
+    // {
+    //   measurementCovarianceSubset(i, i) = ::fabs(measurementCovarianceSubset(i, i));
+    // }
+    //
+    // // If the measurement variance for a given variable is very
+    // // near 0 (as in e-50 or so) and the variance for that
+    // // variable in the covariance matrix is also near zero, then
+    // // the Kalman gain computation will blow up. Really, no
+    // // measurement can be completely without error, so add a small
+    // // amount in that case.
+    // if (measurementCovarianceSubset(i, i) < 1e-9)
+    // {
+    //   measurementCovarianceSubset(i, i) = 1e-9;
+    // }
+    // }
+    //
+    // // The state-to-measurement function, h, will now be a measurement_size x full_state_size
+    // // matrix, with ones in the (i, i) locations of the values to be updated
+    // for (size_t i = 0; i < updateSize; ++i)
+    // {
+    // stateToMeasurementSubset(i, updateIndices[i]) = 1;
+    // }
+    //
+    // // (1) Compute the Kalman gain: K = (PH') / (HPH' + R)
+    // arma::mat pht = estimateErrorCovariance_ * stateToMeasurementSubset.transpose();
+    // arma::mat hphrInv  = (stateToMeasurementSubset * pht + measurementCovarianceSubset).inverse();
+    // kalmanGainSubset.noalias() = pht * hphrInv;
+    //
+    // innovationSubset = (measurementSubset - stateSubset);
+    //
+    // //@TODO  Wrap angles in the innovation
+    // // for (size_t i = 0; i < updateSize; ++i)
+    // // {
+    // // if (updateIndices[i] == StateMemberRoll  ||
+    // //     updateIndices[i] == StateMemberPitch ||
+    // //     updateIndices[i] == StateMemberYaw)
+    // // {
+    // //   while (innovationSubset(i) < -PI)
+    // //   {
+    // //     innovationSubset(i) += TAU;
+    // //   }
+    // //
+    // //   while (innovationSubset(i) > PI)
+    // //   {
+    // //     innovationSubset(i) -= TAU;
+    // //   }
+    // // }
+    // // }
+    //
+    // // (3) Apply the gain to the difference between the state and measurement: x = x + K(z - Hx)
+    // state_.noalias() += kalmanGainSubset * innovationSubset;
+    //
+    // // (4) Update the estimate error covariance using the Joseph form: (I - KH)P(I - KH)' + KRK'
+    // arma::mat gainResidual = identity_;
+    // gainResidual.noalias() -= kalmanGainSubset * stateToMeasurementSubset;
+    // estimateErrorCovariance_ = gainResidual * estimateErrorCovariance_ * gainResidual.transpose();
+    // estimateErrorCovariance_.noalias() += kalmanGainSubset *
+    //                                       measurementCovarianceSubset *
+    //                                       kalmanGainSubset.transpose();
+
   } // method EkfCore::update
 
-}// namespace FilterCore
 }// namespace Fusion

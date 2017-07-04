@@ -5,7 +5,6 @@
 #include <boost/shared_ptr.hpp>
 
 namespace Fusion {
-namespace FilterCore {
 
 
     struct SensorMeasurement{
@@ -116,6 +115,5 @@ namespace FilterCore {
   }; // Class EkfCore
 
 
-} // namespace FilterCore
 } // namespace Fusion
 #endif
