@@ -1,10 +1,11 @@
-#include "sensor_fusion/Defs.hpp"
+#include "sensor_fusion/defs.hpp"
 #include "sensor_fusion/filter_core.h"
 
 using namespace std;
 using namespace arma;
 
 namespace Fusion{
+  namespace FilterCore{
   // Constructor
   EkfCore::EkfCore() {
 
@@ -287,5 +288,5 @@ namespace Fusion{
     //                                       kalmanGainSubset.transpose();
 
   } // method EkfCore::update
-
+} // namespaceFilterCore
 }// namespace Fusion

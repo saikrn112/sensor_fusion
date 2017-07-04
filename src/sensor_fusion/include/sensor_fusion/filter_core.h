@@ -5,8 +5,7 @@
 #include <boost/shared_ptr.hpp>
 
 namespace Fusion {
-
-
+  namespace FilterCore{
     struct SensorMeasurement{
     private:
       std::string topicName_;
@@ -114,6 +113,6 @@ namespace Fusion {
     void setLastUpdateTime(double);
   }; // Class EkfCore
 
-
+} // namespace FilterCore
 } // namespace Fusion
 #endif

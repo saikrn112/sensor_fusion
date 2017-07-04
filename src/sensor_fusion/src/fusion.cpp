@@ -1,13 +1,14 @@
-#include "sensor_fusion/Fusion.hpp"
+#include "sensor_fusion/fusion.hpp"
 
 using namespace std;
 using namespace arma;
 
 namespace Fusion{
+  namespace RosIntegration{
 
     void Ekf::imu_cb(const sensor_msgs::Imu& msg){
       ROS_INFO("in Imu call back");
-      
+
 
     }
 
@@ -40,5 +41,5 @@ namespace Fusion{
     }
 
 
-
+  }// namespace FilterCore
 }// namespace Fusion

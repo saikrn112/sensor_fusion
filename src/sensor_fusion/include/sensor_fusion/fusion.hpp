@@ -6,13 +6,14 @@
 #include <sensor_msgs/NavSatFix.h>
 #include <nav_msgs/Odometry.h>
 #include <sensor_fusion/filter_core.h>
-#include <sensor_fusion/Defs.hpp>
+#include <sensor_fusion/defs.hpp>
 #include <armadillo>
 
 namespace Fusion{
+  namespace RosIntegration{
 
-    //@TODO need to fuse different namespaces :)
-    class Ekf  {
+
+    class Ekf : public Fusion::FilterCore::EkfCore {
     private:
       int a;
       // Local NodeHandle
@@ -35,7 +36,7 @@ namespace Fusion{
       bool updateAngularVelocities(const sensor_msgs::Imu& );
       bool updateBodyAccelerations(const sensor_msgs::Imu& );
       bool updateQuaternion(const sensor_msgs::Imu& , const arma::colvec& state_ );
-      void addMeasurementinQueue(const SensorMeasurement&, std::string);
+      void addMeasurementinQueue(const FilterCore::SensorMeasurement&, std::string);
 
       // This function job is to initialise the filter with mentionend covariances
       // and also check for the initial measurements
@@ -46,5 +47,7 @@ namespace Fusion{
       void integrate(void);
       // Kalman Filter predict and Update functions
     };
+
+  }// RosIntegration
 } // Fusion
 #endif
