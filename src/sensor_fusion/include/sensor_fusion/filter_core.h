@@ -7,9 +7,7 @@
 #include <vector>
 #include <queue>
 // basic methods which will help in debugging
-// output matrix, colvecs and vector<int>
-std::ostream &operator<<(std::ostream &output, const arma::mat& msg);
-std::ostream &operator<<(std::ostream &output, const arma::colvec& msg);
+// output vector<int> for matrix and colvec use .print() method
 std::ostream &operator<<(std::ostream &output, const std::vector<int>& msg);
 
 

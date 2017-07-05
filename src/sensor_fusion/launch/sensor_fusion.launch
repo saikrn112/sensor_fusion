@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
 <launch>
   <rosparam command="load" file="$(find sensor_fusion)/config/fusion.yaml" />
-  <node pkg="sensor_fusion" type="sensor_fusion_node" name="sensor_fusion" clear_params="true"/>
+  <node pkg="sensor_fusion" type="sensor_fusion_node" name="sensor_fusion" clear_params="true" output="screen"/>
 </launch>

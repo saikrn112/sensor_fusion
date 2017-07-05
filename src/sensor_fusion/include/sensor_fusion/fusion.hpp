@@ -28,6 +28,7 @@ namespace Fusion{
       ros::Subscriber imuSub, odomSub, gpsSub;
       ros::Publisher pub;
       FilterCore::EkfCore filter_;
+      bool isDebugMode_;
     public:
 
       Ekf(ros::NodeHandle*); // Constructor
