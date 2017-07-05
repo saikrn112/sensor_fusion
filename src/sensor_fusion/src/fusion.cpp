@@ -102,29 +102,29 @@ namespace Fusion{
     Ekf::~Ekf(){
       ROS_INFO("Destroying the EKF constructor");
     } // Destructor
-    void integrateSensorMeasurements(){
+    void Ekf::integrateSensorMeasurements(){
 
     }// integrateSensorMeasurements
 
 
-    void getFusedState(const nav_msgs::Odometry::ConstPtr& msg){
+    void Ekf::getFusedState( nav_msgs::Odometry& msg){
       arma::colvec state = filter_.getState();
       const arma::mat& covariance = filter_.getProcessNoiseCovariance();
-      msg->header.frame_id = "base_link";
-      msg->header.stamp = filter_.lastFilterTime_;
-      msg->pose.pose.position.x = state(StatePositionX);
-      msg->pose.pose.position.y = state(StatePositionY);
-      msg->pose.pose.position.z = state(StatePositionZ);
-      msg->pose.pose.orientation.x = state(StateQuaternion0);
-      msg->pose.pose.orientation.y = state(StateQuaternion1);
-      msg->pose.pose.orientation.z = state(StateQuaternion2);
-      msg->pose.pose.orientation.w = state(StateQuaternion3);
-      msg->twist.twist.linear.x = state(StateVelocityX);
-      msg->twist.twist.linear.y = state(StateVelocityY);
-      msg->twist.twist.linear.z = state(StateVelocityZ);
-      msg->twist.twist.angular.x = state(StateOmegaX);
-      msg->twist.twist.angular.y = state(StateOmegaY);
-      msg->twist.twist.angular.z = state(StateOmegaZ);
+      msg.header.frame_id = "odom";
+      msg.header.stamp = ros::Time(filter_.getLastFilterTime());
+      msg.pose.pose.position.x = state(StatePositionX);
+      msg.pose.pose.position.y = state(StatePositionY);
+      msg.pose.pose.position.z = state(StatePositionZ);
+      msg.pose.pose.orientation.x = state(StateQuaternion0);
+      msg.pose.pose.orientation.y = state(StateQuaternion1);
+      msg.pose.pose.orientation.z = state(StateQuaternion2);
+      msg.pose.pose.orientation.w = state(StateQuaternion3);
+      msg.twist.twist.linear.x = state(StateVelocityX);
+      msg.twist.twist.linear.y = state(StateVelocityY);
+      msg.twist.twist.linear.z = state(StateVelocityZ);
+      msg.twist.twist.angular.x = state(StateOmegaX);
+      msg.twist.twist.angular.y = state(StateOmegaY);
+      msg.twist.twist.angular.z = state(StateOmegaZ);
 
       // for(int i=0; i<covariance.size(); i++){
       //   //@TODO convert the quaternion covariance to euler angles covariance.

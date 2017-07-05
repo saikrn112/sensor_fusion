@@ -38,8 +38,14 @@ namespace Fusion{
   EkfCore::~EkfCore() {
 
   }
-  const arma::mat& getProcessNoiseCovariance{
-    return &processNoiseCovariance;
+  const arma::mat& EkfCore::getProcessNoiseCovariance(){
+    return processNoiseCovariance_;
+  }
+  const arma::colvec& EkfCore::getState(){
+    return state_;
+  }
+  double EkfCore::getLastFilterTime(){
+    return lastFilterTime_;
   }
   void EkfCore::setProcessNoiseCovariance(const arma::mat& processNoiseCovariance){
     processNoiseCovariance_= processNoiseCovariance;

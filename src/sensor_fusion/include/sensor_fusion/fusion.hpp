@@ -46,7 +46,7 @@ namespace Fusion{
       // and also check for the initial measurements
       void initialize(void);
       void loadParams(void);
-      void getFusedState(const nav_msgs::Odometry::ConstPtr& );
+      void getFusedState( nav_msgs::Odometry& );
       // This function should integrate the measurements
       void integrateSensorMeasurements(void);
       // Kalman Filter predict and Update functions
