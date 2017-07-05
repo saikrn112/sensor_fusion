@@ -130,7 +130,9 @@ namespace Fusion{
       //   //@TODO convert the quaternion covariance to euler angles covariance.
       //   msg->pose.pose.covariance[i] = covariance[i];
       // }
-      
+      for(int i=0; i<6; i++){
+
+      }
 
 
     } // getFusedState
