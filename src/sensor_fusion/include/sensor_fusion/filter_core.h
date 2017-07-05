@@ -3,6 +3,15 @@
 
 #include <armadillo>
 #include <boost/shared_ptr.hpp>
+#include <iostream>
+#include <vector>
+#include <queue>
+// basic methods which will help in debugging
+// output matrix, colvecs and vector<int>
+std::ostream &operator<<(std::ostream &output, const arma::mat& msg);
+std::ostream &operator<<(std::ostream &output, const arma::colvec& msg);
+std::ostream &operator<<(std::ostream &output, const std::vector<int>& msg);
+
 
 namespace Fusion {
   namespace FilterCore{
@@ -26,6 +35,7 @@ namespace Fusion {
       }
     };
     typedef boost::shared_ptr<SensorMeasurement> SensorMeasurementPtr;
+    typedef std::priority_queue<SensorMeasurementPtr,std::vector<SensorMeasurementPtr>,SensorMeasurement> SensorMeasurementPtrQueue;
 
     struct FusedState{
       arma::colvec state_;

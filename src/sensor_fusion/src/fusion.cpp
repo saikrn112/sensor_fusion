@@ -15,7 +15,6 @@ namespace Fusion{
       arma::mat anglesCovariance(ANGLES_SIZE,ANGLES_SIZE);
       anglesCovariance.eye();
       anglesCovariance(0,0) = msg->orientation_covariance[0];
-      accelerationCovariance(1,1) = msg->linear_acceleration_covariance[4];
       anglesCovariance(1,1) = msg->orientation_covariance[4];
       anglesCovariance(2,2) = msg->orientation_covariance[8];
       arma::mat quaternionCovariance(QUAT_SIZE,QUAT_SIZE);
@@ -23,6 +22,7 @@ namespace Fusion{
       arma::mat accelerationCovariance(ACCELERATION_SIZE,ACCELERATION_SIZE);
       accelerationCovariance.eye();
       accelerationCovariance(0,0) = msg->linear_acceleration_covariance[0];
+      accelerationCovariance(1,1) = msg->linear_acceleration_covariance[4];
       accelerationCovariance(2,2) = msg->linear_acceleration_covariance[8];
       arma::mat omegaCovariance(OMEGA_SIZE,OMEGA_SIZE);
       omegaCovariance.eye();
