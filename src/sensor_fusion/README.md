@@ -8,10 +8,9 @@
 - [ ] Converting 3x3 covaraince to 4x4 covariance (euler angles to quaternion)
 - [x] make sure that q0 is the scalar (basically same )
 - [ ] priorityMeasurementQueue variable
-
-
-# 4:30 - 8:30 Plan
-- [ ] print matrices and vectors coming from IMU message
-- [ ] Enqueue the message and check its validity in the EkfCore Predict and Update measurement
+- [x] print matrices and vectors coming from IMU message
 - [ ] talk to shrikant sir about 4x4 quaternion covariance or derive the jacobian and get the final matrices
+
+# 8:15PM - 11:00PM Plan
+- [ ] Enqueue the message and check its validity in the EkfCore Predict and Update measurement
 - [ ] converting GPS lat/long to NED positions using the library used in Team Abhiyaan
