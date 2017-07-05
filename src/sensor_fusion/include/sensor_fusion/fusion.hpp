@@ -21,9 +21,9 @@ namespace Fusion{
       ros::NodeHandle nh_;
       ros::NodeHandle nhPriv_;
       // Sensor Callbacks
-      void imu_cb(const sensor_msgs::Imu& ); // Imu Callback
-      void gps_cb(const sensor_msgs::NavSatFix& ); // GPS callback
-      void odom_cb(const nav_msgs::Odometry& ); // Odometry Callback
+      void imu_cb(const sensor_msgs::Imu::ConstPtr& ); // Imu Callback
+      void gps_cb(const sensor_msgs::NavSatFix::ConstPtr& ); // GPS callback
+      void odom_cb(const nav_msgs::Odometry::ConstPtr& ); // Odometry Callback
       // Subscribers and Publisher objects
       ros::Subscriber imuSub, odomSub, gpsSub;
       ros::Publisher pub;

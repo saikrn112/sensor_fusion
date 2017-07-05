@@ -5,11 +5,12 @@ namespace Fusion{
   const int VELOCITY_SIZE = 3;
   const int ACCELERATION_SIZE = 4;
   const int QUAT_SIZE = 4;
+  const int OMEGA_SIZE = 3;
   const int BIAS_SIZE = 3;
   const int MAGNETIC_NED_SIZE = 3;
   const int MAGNETIC_XYZ_SIZE = 3;
   const int STATE_SIZE = POSITION_SIZE + VELOCITY_SIZE + QUAT_SIZE + BIAS_SIZE;
-
+  const int ANGLES_SIZE = 3; //currently used only for anglesCovariance() initialisation
   // Frequently Used Constants
   const double PI = 3.141592653589793;
   const double G = 9.80665; // m/s2

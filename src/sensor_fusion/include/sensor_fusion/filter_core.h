@@ -7,7 +7,6 @@
 namespace Fusion {
   namespace FilterCore{
     struct SensorMeasurement{
-    private:
       std::string topicName_;
       arma::colvec measurement_;
       arma::mat covariance_;
@@ -20,7 +19,6 @@ namespace Fusion {
       bool operator()(const SensorMeasurement &a, const SensorMeasurement &b){
         return a.time_>b.time_;
       }
-
       SensorMeasurement():
       topicName_(""),
       time_(0.0){
