@@ -68,7 +68,7 @@ namespace Fusion {
     arma::colvec state_;
     arma::colvec predictedState_;
     arma::mat processMatrix_;              // f
-    const arma::mat& getProcessNoiseCovariance();
+
     arma::mat processMatrixJacobian_;      // F
     arma::mat estimateErrorCovariance_;    // P
     arma::mat processNoiseCovariance_;     // Q
@@ -97,6 +97,7 @@ namespace Fusion {
     // Getters and setters;
     const arma::colvec& getState();
     const arma::colvec& getPredictedState();
+    const arma::mat& getProcessNoiseCovariance();
     const arma::mat& getProcessMatrix();
     const arma::mat& getProcessMatrixJacobian();
     const arma::mat& getEstimateErrorCovariance();

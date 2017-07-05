@@ -11,6 +11,8 @@
 - [x] print matrices and vectors coming from IMU message
 - [ ] talk to shrikant sir about 4x4 quaternion covariance or derive the jacobian and get the final matrices
 
-# 8:15PM - 11:00PM Plan
+# 8:30PM - 11:00PM Plan
+- [ ] converting GPS lat/long to NED positions using the library that was used in Team Abhiyaan
+- [ ] collect bagfiles of imu/data gps/fix from husky simulator for decreasing the load
+- [ ] methods for process and integrate Measurements
 - [ ] Enqueue the message and check its validity in the EkfCore Predict and Update measurement
-- [ ] converting GPS lat/long to NED positions using the library used in Team Abhiyaan
