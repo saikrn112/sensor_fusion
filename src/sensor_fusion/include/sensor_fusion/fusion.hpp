@@ -29,6 +29,7 @@ namespace Fusion{
       ros::Publisher pub;
       FilterCore::EkfCore filter_;
       bool isDebugMode_;
+      FilterCore::SensorMeasurementPtrQueue measurementPtrQueue_;
     public:
 
       Ekf(ros::NodeHandle*); // Constructor
@@ -39,7 +40,7 @@ namespace Fusion{
       bool updateAngularVelocities(const sensor_msgs::Imu& );
       bool updateBodyAccelerations(const sensor_msgs::Imu& );
       bool updateQuaternion(const sensor_msgs::Imu& , const arma::colvec& state_ );
-      void addMeasurementinQueue(const FilterCore::SensorMeasurement&, std::string);
+      void addMeasurementinQueue(const FilterCore::SensorMeasurementPtr&);
 
       // This function job is to initialise the filter with mentionend covariances
       // and also check for the initial measurements

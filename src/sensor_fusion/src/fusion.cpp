@@ -65,6 +65,7 @@ namespace Fusion{
                     <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
                     <<  "covariances: " << endl << measurementPtr->covariance_ << endl);
       }
+      addMeasurementinQueue(measurementPtr);
     }
 
     void Ekf::gps_cb(const sensor_msgs::NavSatFix::ConstPtr& msg){
@@ -76,7 +77,9 @@ namespace Fusion{
       // addMeasurementinQueue(msg, ros::time::Now());
       ROS_INFO("in odom call back");
     }
-
+    void Ekf::addMeasurementinQueue(const FilterCore::SensorMeasurementPtr& measurementPtr){
+      measurementPtrQueue_.push(measurementPtr);
+    }
     Ekf::Ekf(ros::NodeHandle* nodeHandle):
     nh_(*nodeHandle),
     nhPriv_("~")
@@ -91,11 +94,11 @@ namespace Fusion{
       while(ros::ok()){
         ros::spinOnce();
       }
-    }
+    } // Constructor
 
     Ekf::~Ekf(){
       ROS_INFO("Destroying the EKF constructor");
-    }
+    } // Destructor
 
     void Ekf::loadParams(){
 
