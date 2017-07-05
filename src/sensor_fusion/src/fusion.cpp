@@ -8,7 +8,7 @@ namespace Fusion{
 
     void Ekf::imu_cb(const sensor_msgs::Imu& msg){
       ROS_INFO("in Imu call back");
-
+      FilterCore::SensorMeasurementPtr measurement;
 
     }
 
