@@ -46,7 +46,7 @@ namespace Fusion{
       measurement->covariance_.submat(StateQuaternion0,StateQuaternion0,StateQuaternion3,StateQuaternion3) = quaternionCovariance;
       measurement->covariance_.submat(StateAcclerationX,StateAcclerationX,StateAcclerationZ,StateAcclerationZ) = accelerationCovariance;
       measurement->covariance_.submat(StateOmegaX,StateOmegaX,StateOmegaZ,StateOmegaZ) = omegaCovariance;
-      
+
     }
 
     void Ekf::gps_cb(const sensor_msgs::NavSatFix::ConstPtr& msg){
