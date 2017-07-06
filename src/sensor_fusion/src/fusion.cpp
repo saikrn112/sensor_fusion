@@ -23,6 +23,7 @@ namespace Fusion{
       while(ros::ok()){
         integrateSensorMeasurements();
         getFusedState(fusedState);
+        pub.publish(fusedState);
         ros::spinOnce();
       }
     } // Constructor
@@ -117,6 +118,7 @@ namespace Fusion{
     Ekf::~Ekf(){
       ROS_INFO("Destroying the EKF constructor");
     } // Destructor
+
     void Ekf::integrateSensorMeasurements(){
       // In this method we are going to integrate and predict the state
       // for that we need to
@@ -124,15 +126,18 @@ namespace Fusion{
       FilterCore::SensorMeasurementPtr measurementPtr;
       while(ros::ok() && !measurementPtrQueue_.empty()){
         measurementPtr = measurementPtrQueue_.top();
-        ROS_INFO_STREAM("measurements using for integration:" << endl
-                    << "measurement_topic: " << measurementPtr->topicName_ << endl
-                    <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
-                    <<  "covariances: " << endl << measurementPtr->covariance_ << endl);
+        measurementPtrQueue_.pop();
+        if(isDebugMode_){
+          ROS_INFO_STREAM("measurements using for integration:" << endl
+                      << "measurement_topic: " << measurementPtr->topicName_ << endl
+                      <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
+                      <<  "covariances: " << endl << measurementPtr->covariance_ << endl);
+        }
+        double delta = measurementPtr->time_ - filter_.getLastMeasurementTime();
+        filter_.predict(delta);
+
+        // filter_.update(measurementPtr);
       }
-      // measurementPtrQueue_.pop();
-      // double delta = measurementPtr->time_ - filter_.getLastMeasurementTime();
-      // filter_.predict(delta);
-      // filter_.update(measurementPtr);
     }// integrateSensorMeasurements
 
 
@@ -154,7 +159,7 @@ namespace Fusion{
       msg.twist.twist.angular.x = state(StateOmegaX);
       msg.twist.twist.angular.y = state(StateOmegaY);
       msg.twist.twist.angular.z = state(StateOmegaZ);
-
+      ROS_INFO_STREAM("msg in getFusedState" << endl << state << endl);
       // for(int i=0; i<covariance.size(); i++){
       //   //@TODO convert the quaternion covariance to euler angles covariance.
       //   msg->pose.pose.covariance[i] = covariance[i];
