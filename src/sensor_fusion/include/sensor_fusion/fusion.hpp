@@ -7,7 +7,7 @@
 #include <nav_msgs/Odometry.h>
 #include <sensor_fusion/filter_core.h>
 #include <sensor_fusion/defs.hpp>
-
+#include <tf2/transform_datatypes.h>
 #include <XmlRpcException.h>
 
 #include <armadillo>
