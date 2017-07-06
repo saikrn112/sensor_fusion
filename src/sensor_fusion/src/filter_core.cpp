@@ -34,12 +34,13 @@ namespace Fusion{
     processNoiseCovariance_(StatePositionX, StatePositionX) = 0.05;
     processNoiseCovariance_(StatePositionY, StatePositionY) = 0.05;
     processNoiseCovariance_(StatePositionZ, StatePositionZ) = 0.06;
-    processNoiseCovariance_(StateRoll, StateRoll) = 0.03;
-    processNoiseCovariance_(StatePitch, StatePitch) = 0.03;
-    processNoiseCovariance_(StateYaw, StateYaw) = 0.06;
     processNoiseCovariance_(StateVelocityX, StateVelocityX) = 0.025;
     processNoiseCovariance_(StateVelocityY, StateVelocityY) = 0.025;
     processNoiseCovariance_(StateVelocityZ, StateVelocityZ) = 0.04;
+    processNoiseCovariance_(StateQuaternion0, StateQuaternion0) = 0.01;
+    processNoiseCovariance_(StateQuaternion1, StateQuaternion1) = 0.01;
+    processNoiseCovariance_(StateQuaternion2, StateQuaternion2) = 0.01;
+    processNoiseCovariance_(StateQuaternion3, StateQuaternion3) = 0.01;
     processNoiseCovariance_(StateOmegaX, StateOmegaX) = 0.01;
     processNoiseCovariance_(StateOmegaY, StateOmegaY) = 0.01;
     processNoiseCovariance_(StateOmegaZ), StateOmegaZ) = 0.02;
