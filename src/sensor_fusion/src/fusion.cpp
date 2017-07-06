@@ -45,6 +45,16 @@ namespace Fusion{
       measurement(StateOmegaX) = msg->angular_velocity.x;
       measurement(StateOmegaY) = msg->angular_velocity.y;
       measurement(StateOmegaZ) = msg->angular_velocity.z;
+      // Preprocessing IMU data - Removing the Gravitational Acceleration. Keeping a parameter just in case
+      if(removeGravititionalAcceleration_){
+        tf2::Vector3 gravity(0,0,G);
+        tf2::Quaternion q(static_cast<tf2Scalar>(measurement(StateQuaternion0)),static_cast<tf2Scalar>(measurement(StateQuaternion1)),static_cast<tf2Scalar>(measurement(StateQuaternion2)),static_cast<tf2Scalar>(measurement(StateQuaternion3)));
+        tf2::Matrix3x3 rotMat(q);
+        tf2::Vector3 a = rotMat*gravity;
+        measurement(StateAcclerationX) -= a.getX();
+        measurement(StateAcclerationY) -= a.getY();
+        measurement(StateAcclerationZ) -= a.getZ();
+      }
 
       arma::mat covariance(STATE_SIZE,STATE_SIZE);
       covariance.eye();
@@ -140,6 +150,7 @@ namespace Fusion{
 
       nhPriv_.param("a",placeHolder_);
       nhPriv_.param("debug_mode",isDebugMode_,false);
+      nhPriv_.param("remove_gravity",removeGravititionalAcceleration_,true);
       ROS_INFO_STREAM("debug_mode" << isDebugMode_);
       // Load up the process noise covariance (from the launch file/parameter server)
       arma::mat processNoiseCovariance(3,3);

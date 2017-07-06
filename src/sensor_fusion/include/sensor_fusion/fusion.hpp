@@ -8,6 +8,7 @@
 #include <sensor_fusion/filter_core.h>
 #include <sensor_fusion/defs.hpp>
 #include <tf2/transform_datatypes.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <XmlRpcException.h>
 
 #include <armadillo>
@@ -29,6 +30,7 @@ namespace Fusion{
       ros::Publisher pub;
       FilterCore::EkfCore filter_;
       bool isDebugMode_;
+      bool removeGravititionalAcceleration_;
       FilterCore::SensorMeasurementPtrQueue measurementPtrQueue_;
     public:
 
