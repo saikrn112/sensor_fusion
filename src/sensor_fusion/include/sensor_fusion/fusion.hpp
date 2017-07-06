@@ -39,9 +39,6 @@ namespace Fusion{
 
       // The following functions should update the corresponding state with the
       // specified time stamp
-      bool updateAngularVelocities(const sensor_msgs::Imu& );
-      bool updateBodyAccelerations(const sensor_msgs::Imu& );
-      bool updateQuaternion(const sensor_msgs::Imu& , const arma::colvec& state_ );
       void addMeasurementinQueue(const FilterCore::SensorMeasurementPtr&);
 
       // This function job is to initialise the filter with mentionend covariances

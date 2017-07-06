@@ -31,6 +31,22 @@ namespace Fusion{
     covarianceEpsilon_*=1e-9;
     identity_.eye();
 
+    processNoiseCovariance_(StatePositionX, StatePositionX) = 0.05;
+    processNoiseCovariance_(StatePositionY, StatePositionY) = 0.05;
+    processNoiseCovariance_(StatePositionZ, StatePositionZ) = 0.06;
+    processNoiseCovariance_(StateRoll, StateRoll) = 0.03;
+    processNoiseCovariance_(StatePitch, StatePitch) = 0.03;
+    processNoiseCovariance_(StateYaw, StateYaw) = 0.06;
+    processNoiseCovariance_(StateVelocityX, StateVelocityX) = 0.025;
+    processNoiseCovariance_(StateVelocityY, StateVelocityY) = 0.025;
+    processNoiseCovariance_(StateVelocityZ, StateVelocityZ) = 0.04;
+    processNoiseCovariance_(StateOmegaX, StateOmegaX) = 0.01;
+    processNoiseCovariance_(StateOmegaY, StateOmegaY) = 0.01;
+    processNoiseCovariance_(StateOmegaZ), StateOmegaZ) = 0.02;
+    processNoiseCovariance_(StateAcclerationX, StateAcclerationX) = 0.01;
+    processNoiseCovariance_(StateAcclerationY, StateAcclerationY) = 0.01;
+    processNoiseCovariance_(StateAcclerationZ, StateAcclerationZ) = 0.015;
+
 
   }
 
@@ -294,9 +310,9 @@ namespace Fusion{
     // //@TODO  Wrap angles in the innovation
     // // for (size_t i = 0; i < updateSize; ++i)
     // // {
-    // // if (updateIndices[i] == StateMemberRoll  ||
-    // //     updateIndices[i] == StateMemberPitch ||
-    // //     updateIndices[i] == StateMemberYaw)
+    // // if (updateIndices[i] == StateRoll  ||
+    // //     updateIndices[i] == StatePitch ||
+    // //     updateIndices[i] == StateYaw)
     // // {
     // //   while (innovationSubset(i) < -PI)
     // //   {
