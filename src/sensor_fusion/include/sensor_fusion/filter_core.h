@@ -92,15 +92,15 @@ namespace Fusion {
 
     // Core functions of the Filter
     void predict (const double delta);
-    void update (const SensorMeasurement& measurement);
+    void update (const SensorMeasurementPtr& measurementPtr);
 
     // Getters and setters;
-    const arma::colvec& getState();
-    const arma::colvec& getPredictedState();
-    const arma::mat& getProcessNoiseCovariance();
-    const arma::mat& getProcessMatrix();
-    const arma::mat& getProcessMatrixJacobian();
-    const arma::mat& getEstimateErrorCovariance();
+    arma::colvec& getState();
+    arma::colvec& getPredictedState();
+    arma::mat& getProcessNoiseCovariance();
+    arma::mat& getProcessMatrix();
+    arma::mat& getProcessMatrixJacobian();
+    arma::mat& getEstimateErrorCovariance();
     // arma::mat& getMeasurementNoiseCovariance();
     bool getInitialisedStatus();
     double getLastFilterTime();

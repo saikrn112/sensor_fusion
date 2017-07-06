@@ -18,6 +18,8 @@ namespace Fusion{
       pub = nh_.advertise<nav_msgs::Odometry>("/odomCombined",1,true);
       Ekf::loadParams();
       nav_msgs::Odometry fusedState;
+      filter_.setLastMeasurementTime(ros::Time::now().toSec());
+      filter_.setLastFilterTime(ros::Time::now().toSec());
       while(ros::ok()){
         integrateSensorMeasurements();
         getFusedState(fusedState);
@@ -114,7 +116,13 @@ namespace Fusion{
       ROS_INFO("Destroying the EKF constructor");
     } // Destructor
     void Ekf::integrateSensorMeasurements(){
-
+      // In this method we are going to integrate and predict the state
+      // for that we need to
+      FilterCore::SensorMeasurementPtr measurementPtr = measurementPtrQueue_.top();
+      measurementPtrQueue_.pop();
+      double delta = measurementPtr->time_ - filter_.getLastMeasurementTime();
+      filter_.predict(delta);
+      filter_.update(measurementPtr);
     }// integrateSensorMeasurements
 
 

@@ -37,19 +37,80 @@ namespace Fusion{
     // Destructor
   EkfCore::~EkfCore() {
 
-  }
-  const arma::mat& EkfCore::getProcessNoiseCovariance(){
+  } // Destructor
+
+  arma::colvec& EkfCore::getState(){
+      return state_;
+  }// method getState
+
+  arma::colvec& EkfCore::getPredictedState(){
+    return predictedState_;
+  }// method getPredictedState
+
+  arma::mat& EkfCore::getProcessNoiseCovariance(){
     return processNoiseCovariance_;
-  }
-  const arma::colvec& EkfCore::getState(){
-    return state_;
-  }
+  }// method getProcessNoiseCovariance
+
+  arma::mat& EkfCore::getProcessMatrix(){
+    return processMatrix_;
+  }// method getProcessMatrix
+
+  arma::mat& EkfCore::getProcessMatrixJacobian(){
+    return processMatrixJacobian_;
+  }// method getProcessMatrixJacobian
+
+  arma::mat& EkfCore::getEstimateErrorCovariance(){
+    return estimateErrorCovariance_;
+  }// method getEstimateErrorCovariance
+
+  bool EkfCore::getInitialisedStatus(){
+    return isInitialised_;
+  }// method getInitialisedStatus
+
   double EkfCore::getLastFilterTime(){
     return lastFilterTime_;
-  }
-  void EkfCore::setProcessNoiseCovariance(const arma::mat& processNoiseCovariance){
-    processNoiseCovariance_= processNoiseCovariance;
-  }
+  } // method getLastFilterTime
+
+  double EkfCore::getLastMeasurementTime(){
+    return lastMeasurementTime_;
+  }// method getLastMeasurementTime
+
+  void EkfCore::setState(const arma::colvec& state){
+    state_ = state;
+  }// method setState
+
+  void EkfCore::setProcessMatrix(const arma::mat& msg){
+    processMatrix_ = msg;
+  }// method setProcessMatrix
+
+  void EkfCore::setProcessMatrixJacobian(const arma::mat& msg){
+    processMatrixJacobian_ = msg;
+  }// method setProcessMatrixJacobian
+
+  void EkfCore::setEstimateErrorCovariance(const arma::mat& msg){
+    estimateErrorCovariance_ = msg;
+  }// method setEstimateErrorCovariance
+
+  void EkfCore::setProcessNoiseCovariance(const arma::mat& msg){
+    processNoiseCovariance_ = msg;
+  }// method setProcessNoiseCovariance
+
+  void EkfCore::setInitialisedStatus(bool msg){
+    isInitialised_ = msg;
+  }// setInitialisedStatus
+
+  void EkfCore::setLastFilterTime(double msg){
+    lastFilterTime_ = msg;
+  }// setLastFilterTime
+
+  void EkfCore::setLastMeasurementTime(double msg){
+    lastMeasurementTime_ = msg;
+  }// setLastMeasurementTime
+
+  void EkfCore::setLastUpdateTime(double msg){
+    lastUpdateTime_ = msg;
+  }// setLastUpdateTime
+
   void EkfCore::predict(const double delta){
     /* Temporary Variables */
     // Quaternion components
@@ -196,7 +257,7 @@ namespace Fusion{
 
   } // method EkfCore::process
 
-  void EkfCore::update(const SensorMeasurement& measurement){
+  void EkfCore::update(const SensorMeasurementPtr& measurement){
 
     // We don't want to update everything, so we need to build matrices that only update
     // the measured parts of our state vector. Throughout prediction and correction, we
