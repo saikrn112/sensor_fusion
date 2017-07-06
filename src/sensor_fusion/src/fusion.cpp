@@ -21,7 +21,7 @@ namespace Fusion{
       filter_.setLastMeasurementTime(ros::Time::now().toSec());
       filter_.setLastFilterTime(ros::Time::now().toSec());
       arma::colvec state(STATE_SIZE);
-      state.zeros();
+      // state.zeros();
       filter_.setState(state);
       while(ros::ok()){
         integrateSensorMeasurements();
@@ -45,7 +45,7 @@ namespace Fusion{
 
       arma::mat quaternionCovariance(QUAT_SIZE,QUAT_SIZE);
       quaternionCovariance.eye();
-
+      // quaternionCovariance *= 1e-3;
       arma::mat accelerationCovariance(ACCELERATION_SIZE,ACCELERATION_SIZE);
       accelerationCovariance.eye();
       accelerationCovariance(0,0) = msg->linear_acceleration_covariance[0];
