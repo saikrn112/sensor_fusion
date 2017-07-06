@@ -6,6 +6,25 @@ using namespace arma;
 namespace Fusion{
   namespace RosIntegration{
 
+    Ekf::Ekf(ros::NodeHandle* nodeHandle):
+    nh_(*nodeHandle),
+    nhPriv_("~")
+      {
+      ROS_INFO("Got the Node Handle. Initialising IMU, GPS and Odometry Callback");
+      imuSub = nh_.subscribe("/imu/data",1,&Ekf::imu_cb,this);
+      // gpsSub = nh_.subscribe("/navsat/fix",1,&Ekf::gps_cb,this);
+      // odomSub = nh_.subscribe("/odom",1,&Ekf::odom_cb,this);
+
+      pub = nh_.advertise<nav_msgs::Odometry>("/odomCombined",1,true);
+      Ekf::loadParams();
+      nav_msgs::Odometry fusedState;
+      while(ros::ok()){
+        integrateSensorMeasurements();
+        getFusedState(fusedState);
+        ros::spinOnce();
+      }
+    } // Constructor
+
     void Ekf::imu_cb(const sensor_msgs::Imu::ConstPtr& msg){
       ROS_INFO("in Imu call back");
       // //@TODO convert 3x3 covariance to 4x4 covariance. Temporarily filling it with identity
@@ -48,7 +67,8 @@ namespace Fusion{
       // Preprocessing IMU data - Removing the Gravitational Acceleration. Keeping a parameter just in case
       if(removeGravititionalAcceleration_){
         tf2::Vector3 gravity(0,0,G);
-        tf2::Quaternion q(static_cast<tf2Scalar>(measurement(StateQuaternion0)),static_cast<tf2Scalar>(measurement(StateQuaternion1)),static_cast<tf2Scalar>(measurement(StateQuaternion2)),static_cast<tf2Scalar>(measurement(StateQuaternion3)));
+        // tf2::Quaternion q(static_cast<tf2Scalar>(measurement(StateQuaternion0)),static_cast<tf2Scalar>(measurement(StateQuaternion1)),static_cast<tf2Scalar>(measurement(StateQuaternion2)),static_cast<tf2Scalar>(measurement(StateQuaternion3)));
+        tf2::Quaternion q(measurement(StateQuaternion0),measurement(StateQuaternion1),measurement(StateQuaternion2),measurement(StateQuaternion3));
         tf2::Matrix3x3 rotMat(q);
         tf2::Vector3 a = rotMat*gravity;
         measurement(StateAcclerationX) -= a.getX();
@@ -58,13 +78,11 @@ namespace Fusion{
 
       arma::mat covariance(STATE_SIZE,STATE_SIZE);
       covariance.eye();
-
       covariance.submat(StateQuaternion0,StateQuaternion0,StateQuaternion3,StateQuaternion3) = quaternionCovariance;
       covariance.submat(StateAcclerationX,StateAcclerationX,StateAcclerationZ,StateAcclerationZ) = accelerationCovariance;
       covariance.submat(StateOmegaX,StateOmegaX,StateOmegaZ,StateOmegaZ) = omegaCovariance;
 
-
-      // //Enqueuing the IMU measurement in the priority queue.
+      //Enqueuing the IMU measurement in the priority queue.
       FilterCore::SensorMeasurementPtr measurementPtr = FilterCore::SensorMeasurementPtr(new FilterCore::SensorMeasurement);
       measurementPtr->topicName_ = "IMU";
       measurementPtr->measurement_ = measurement;
@@ -76,38 +94,21 @@ namespace Fusion{
                     <<  "covariances: " << endl << measurementPtr->covariance_ << endl);
       }
       addMeasurementinQueue(measurementPtr);
-    }
+    } // method imu_cb
 
     void Ekf::gps_cb(const sensor_msgs::NavSatFix::ConstPtr& msg){
       // addMeasurementinQueue(msg, ros::time::Now());
       ROS_INFO("in gps call back");
-    }
+    } // method gps_cb
 
     void Ekf::odom_cb(const nav_msgs::Odometry::ConstPtr& msg){
       // addMeasurementinQueue(msg, ros::time::Now());
       ROS_INFO("in odom call back");
-    }
+    } // method odom_cb
+
     void Ekf::addMeasurementinQueue(const FilterCore::SensorMeasurementPtr& measurementPtr){
       measurementPtrQueue_.push(measurementPtr);
-    }
-    Ekf::Ekf(ros::NodeHandle* nodeHandle):
-    nh_(*nodeHandle),
-    nhPriv_("~")
-      {
-      ROS_INFO("Got the Node Handle. Initialising IMU, GPS and Odometry Callback");
-      imuSub = nh_.subscribe("/imu/data",1,&Ekf::imu_cb,this);
-      // gpsSub = nh_.subscribe("/navsat/fix",1,&Ekf::gps_cb,this);
-      // odomSub = nh_.subscribe("/odom",1,&Ekf::odom_cb,this);
-
-      pub = nh_.advertise<nav_msgs::Odometry>("/odomCombined",1,true);
-      Ekf::loadParams();
-      nav_msgs::Odometry fusedState;
-      while(ros::ok()){
-        integrateSensorMeasurements();
-        getFusedState(fusedState);
-        ros::spinOnce();
-      }
-    } // Constructor
+    } // method addMeasurementinQueue
 
     Ekf::~Ekf(){
       ROS_INFO("Destroying the EKF constructor");
