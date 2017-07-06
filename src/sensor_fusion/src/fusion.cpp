@@ -20,6 +20,9 @@ namespace Fusion{
       nav_msgs::Odometry fusedState;
       filter_.setLastMeasurementTime(ros::Time::now().toSec());
       filter_.setLastFilterTime(ros::Time::now().toSec());
+      arma::colvec state(STATE_SIZE);
+      state.zeros();
+      filter_.setState(state);
       while(ros::ok()){
         integrateSensorMeasurements();
         getFusedState(fusedState);

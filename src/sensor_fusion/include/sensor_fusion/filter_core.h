@@ -2,6 +2,7 @@
 #define FILTER_CORE_H
 
 #include <armadillo>
+#include <cmath>
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <vector>
@@ -93,7 +94,7 @@ namespace Fusion {
     // Core functions of the Filter
     void predict (const double delta);
     void update (const SensorMeasurementPtr& measurementPtr);
-
+    void quatNormalize(void);
     // Getters and setters;
     arma::colvec& getState();
     arma::colvec& getPredictedState();
@@ -117,6 +118,7 @@ namespace Fusion {
     void setLastFilterTime(double);
     void setLastMeasurementTime(double);
     void setLastUpdateTime(double);
+
   }; // Class EkfCore
 
 } // namespace FilterCore

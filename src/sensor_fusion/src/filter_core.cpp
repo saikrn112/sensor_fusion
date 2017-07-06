@@ -111,6 +111,20 @@ namespace Fusion{
     lastUpdateTime_ = msg;
   }// setLastUpdateTime
 
+  void EkfCore::quatNormalize(){
+    double q0 = state_(StateQuaternion0);
+    double q1 = state_(StateQuaternion1);
+    double q2 = state_(StateQuaternion2);
+    double q3 = state_(StateQuaternion3);
+
+    double normFactor = q0*q0 + q1*q1 + q2*q2 + q3*q3;
+    normFactor = pow(normFactor,0.5);
+    state_(StateQuaternion0) = q0/normFactor;
+    state_(StateQuaternion1) = q1/normFactor;
+    state_(StateQuaternion2) = q2/normFactor;
+    state_(StateQuaternion3) = q3/normFactor;
+  }
+
   void EkfCore::predict(const double delta){
     /* Temporary Variables */
     // Quaternion components
@@ -249,6 +263,7 @@ namespace Fusion{
 
     // projecting state forward till lastFilterTime+delta
     state_ = processMatrix_*state_;
+    quatNormalize(); // for normalizing quaternion
 
     // Project the process noise covariance forward @TODO need to initialise estimateErrorCovariance_ and processNoiseCovariance_
     // @NOTE need to understand why we need delta in front of processNoiseCovariance_
