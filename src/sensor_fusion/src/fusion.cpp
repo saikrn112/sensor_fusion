@@ -110,6 +110,8 @@ namespace Fusion{
 
     void Ekf::addMeasurementinQueue(const FilterCore::SensorMeasurementPtr& measurementPtr){
       measurementPtrQueue_.push(measurementPtr);
+      // FilterCore::SensorMeasurementPtr debug = measurementPtrQueue_.top();
+      // ROS_INFO_STREAM("debug state:" << debug->measurement_ << endl);
     } // method addMeasurementinQueue
 
     Ekf::~Ekf(){
@@ -118,11 +120,19 @@ namespace Fusion{
     void Ekf::integrateSensorMeasurements(){
       // In this method we are going to integrate and predict the state
       // for that we need to
-      FilterCore::SensorMeasurementPtr measurementPtr = measurementPtrQueue_.top();
-      measurementPtrQueue_.pop();
-      double delta = measurementPtr->time_ - filter_.getLastMeasurementTime();
-      filter_.predict(delta);
-      filter_.update(measurementPtr);
+
+      FilterCore::SensorMeasurementPtr measurementPtr;
+      while(ros::ok() && !measurementPtrQueue_.empty()){
+        measurementPtr = measurementPtrQueue_.top();
+        ROS_INFO_STREAM("measurements using for integration:" << endl
+                    << "measurement_topic: " << measurementPtr->topicName_ << endl
+                    <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
+                    <<  "covariances: " << endl << measurementPtr->covariance_ << endl);
+      }
+      // measurementPtrQueue_.pop();
+      // double delta = measurementPtr->time_ - filter_.getLastMeasurementTime();
+      // filter_.predict(delta);
+      // filter_.update(measurementPtr);
     }// integrateSensorMeasurements
 
 

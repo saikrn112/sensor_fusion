@@ -4,7 +4,7 @@
 - [x] implementing the same in the code
 - [x] output operator overload for matrices and vectors of mat and colvec
 - [x] adding Measurements
-- [ ] Interpreting the Measurements
+- [x] Interpreting the Measurements
 - [ ] Converting 3x3 covaraince to 4x4 covariance (euler angles to quaternion)
 - [x] make sure that q0 is the scalar (basically same )
 - [x] priorityMeasurementQueue variable
@@ -16,4 +16,4 @@
 - [ ] methods for process and integrate Measurements
 - [ ] Enqueue the message and check its validity in the EkfCore Predict and Update measurement
 - [x] preprocessing IMU data
-- [ ] checking git new behaviour
+- [x] checking git new behaviour
