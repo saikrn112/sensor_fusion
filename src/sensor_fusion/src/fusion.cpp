@@ -20,9 +20,9 @@ namespace Fusion{
       nav_msgs::Odometry fusedState;
       filter_.setLastMeasurementTime(ros::Time::now().toSec());
       filter_.setLastFilterTime(ros::Time::now().toSec());
-      // arma::colvec state(STATE_SIZE);
-      // state.zeros();
-      // filter_.setState(state);
+      arma::colvec state(STATE_SIZE);
+      state.zeros();
+      filter_.setState(state);
       while(ros::ok()){
         integrateSensorMeasurements();
         getFusedState(fusedState);
@@ -32,7 +32,7 @@ namespace Fusion{
     } // Constructor
 
     void Ekf::imu_cb(const sensor_msgs::Imu::ConstPtr& msg){
-      ROS_INFO("in Imu call back");
+      // ROS_INFO("in Imu call back");
       // //@TODO convert 3x3 covariance to 4x4 covariance. Temporarily filling it with identity
       // //@TODO confirm that all the covariance matrices are just diagonal matrix;
       // //@TODO if they are just constants why not just hard code or parameterise them instead of reading from msgs;
@@ -100,7 +100,7 @@ namespace Fusion{
       updateVector[StateAcclerationX] = 1;
       updateVector[StateAcclerationY] = 1;
       updateVector[StateAcclerationZ] = 1;
-
+      // ROS_INFO_STREAM("updateVector: " << updateVector << endl);
 
       //Enqueuing the IMU measurement in the priority queue.
       FilterCore::SensorMeasurementPtr measurementPtr = FilterCore::SensorMeasurementPtr(new FilterCore::SensorMeasurement);
@@ -109,11 +109,11 @@ namespace Fusion{
       measurementPtr->covariance_ = covariance;
       measurementPtr->updateVector_ = updateVector;
       measurementPtr->time_ = msg->header.stamp.toSec();
-      if(isDebugMode_){
-        ROS_INFO_STREAM("measurement_topic: " << measurementPtr->topicName_ << endl
-                    <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
-                    <<  "covariances: " << endl << measurementPtr->covariance_ << endl);
-      }
+      // if(isDebugMode_){
+      //   ROS_INFO_STREAM("measurement_topic: " << measurementPtr->topicName_ << endl
+      //               <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
+      //               <<  "covariances: " << endl << measurementPtr->covariance_ << endl);
+      // }
       addMeasurementinQueue(measurementPtr);
     } // method imu_cb
 
@@ -142,18 +142,53 @@ namespace Fusion{
       // for that we need to
 
       FilterCore::SensorMeasurementPtr measurementPtr;
+      filter_.setLastUpdateTime(ros::Time::now().toSec());
+      filter_.setLastMeasurementTime(ros::Time::now().toSec());
       while(ros::ok() && !measurementPtrQueue_.empty()){
         measurementPtr = measurementPtrQueue_.top();
         measurementPtrQueue_.pop();
-        if(isDebugMode_){
-          ROS_INFO_STREAM("measurements using for integration:" << endl
-                      << "measurement_topic: " << measurementPtr->topicName_ << endl
-                      <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
-                      <<  "covariances: " << endl << measurementPtr->covariance_ << endl);
-        }
+        // if(isDebugMode_){
+        //   ROS_INFO_STREAM("measurements using for integration:" << endl
+        //               << "measurement_topic: " << measurementPtr->topicName_ << endl
+        //               <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
+        //               <<  "covariances: " << endl << measurementPtr->covariance_ << endl);
+        // }
         double delta = measurementPtr->time_ - filter_.getLastMeasurementTime();
-        filter_.predict(delta);
-        filter_.update(measurementPtr);
+        if(filter_.getInitialisedStatus()){
+          filter_.predict(delta);
+          filter_.update(measurementPtr);
+        }
+        else{
+          // Initialize the filter, but only with the values we're using
+          if(isDebugMode_){
+            ROS_INFO_STREAM("=============================Initialising Filter=============================\n");
+          }
+          arma::colvec state(STATE_SIZE);
+          arma::mat estimateErrorCovariance(STATE_SIZE,STATE_SIZE);
+          state.zeros();
+          estimateErrorCovariance.eye();
+          estimateErrorCovariance *=1e-5;
+          size_t measurementLength = measurementPtr->updateVector_.size();
+          for (size_t i = 0; i < measurementLength; ++i)
+          {
+            state[i] = (measurementPtr->updateVector_[i] ? measurementPtr->measurement_[i] : state(i));
+          }
+
+          // Same for covariance
+          for (size_t i = 0; i < measurementLength; ++i)
+          {
+            for (size_t j = 0; j < measurementLength; ++j)
+            {
+              estimateErrorCovariance(i, j) = (measurementPtr->updateVector_[i] && measurementPtr->updateVector_[j] ?
+                                                measurementPtr->covariance_(i, j) :
+                                                estimateErrorCovariance(i, j));
+            }
+          }
+          filter_.setState(state);
+          filter_.setEstimateErrorCovariance(estimateErrorCovariance);
+          filter_.setLastMeasurementTime(measurementPtr->time_);
+          filter_.setInitialisedStatus(true);
+        }
       }
     }// integrateSensorMeasurements
 
@@ -192,7 +227,7 @@ namespace Fusion{
       nhPriv_.param("a",placeHolder_);
       nhPriv_.param("debug_mode",isDebugMode_,false);
       nhPriv_.param("remove_gravity",removeGravititionalAcceleration_,true);
-      ROS_INFO_STREAM("debug_mode" << isDebugMode_);
+      filter_.setDebugStatus(isDebugMode_);
       // Load up the process noise covariance (from the launch file/parameter server)
       arma::mat processNoiseCovariance(3,3);
       processNoiseCovariance.zeros();
