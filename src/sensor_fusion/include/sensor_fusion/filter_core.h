@@ -7,7 +7,8 @@
 #include <iostream>
 #include <vector>
 #include <queue>
-#define DEBUG(msg) if (getDebugStatus()) { std::cout << msg; }
+#include <iomanip>
+#define DEBUG(msg) if (isDebugMode_) { std::cout << msg; }
 // basic methods which will help in debugging
 // output vector<int> for matrix and colvec use .print() method
 std::ostream &operator<<(std::ostream &output, const std::vector<int>& msg);
@@ -88,7 +89,7 @@ namespace Fusion {
     double lastUpdateTime_;
     bool isInitialised_;
     bool isDebugMode_;
-    
+
   public:
     EkfCore(); // all the inital parmeters will be updated as the equations are written
     ~EkfCore(); // Close all the files delete all the new type of pointers

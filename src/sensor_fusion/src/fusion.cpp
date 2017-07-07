@@ -31,7 +31,7 @@ namespace Fusion{
     } // Constructor
 
     void Ekf::imu_cb(const sensor_msgs::Imu::ConstPtr& msg){
-      ROS_INFO("in Imu call back");
+      // ROS_INFO("in Imu call back");
       // //@TODO convert 3x3 covariance to 4x4 covariance. Temporarily filling it with identity
       // //@TODO confirm that all the covariance matrices are just diagonal matrix;
       // //@TODO if they are just constants why not just hard code or parameterise them instead of reading from msgs;
@@ -40,7 +40,6 @@ namespace Fusion{
       anglesCovariance(0,0) = msg->orientation_covariance[0];
       anglesCovariance(1,1) = msg->orientation_covariance[4];
       anglesCovariance(2,2) = msg->orientation_covariance[8];
-
 
       arma::mat quaternionCovariance(QUAT_SIZE,QUAT_SIZE);
       quaternionCovariance.eye();
@@ -108,11 +107,10 @@ namespace Fusion{
       measurementPtr->covariance_ = covariance;
       measurementPtr->updateVector_ = updateVector;
       measurementPtr->time_ = msg->header.stamp.toSec();
-      // if(isDebugMode_){
-      //   ROS_INFO_STREAM("measurement_topic: " << measurementPtr->topicName_ << endl
+      // DEBUG("measurement_topic: " << measurementPtr->topicName_ << endl
       //               <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
-      //               <<  "covariances: " << endl << measurementPtr->covariance_ << endl);
-      // }
+      //               <<  "covariances: " << endl << measurementPtr->covariance_ << endl;
+      // )
       addMeasurementinQueue(measurementPtr);
     } // method imu_cb
 
@@ -146,21 +144,20 @@ namespace Fusion{
       while(ros::ok() && !measurementPtrQueue_.empty()){
         measurementPtr = measurementPtrQueue_.top();
         measurementPtrQueue_.pop();
-        // if(isDebugMode_){
-        //   ROS_INFO_STREAM("measurements using for integration:" << endl
+        // DEBUG("measurements using for integration:" << endl
         //               << "measurement_topic: " << measurementPtr->topicName_ << endl
         //               <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
-        //               <<  "covariances: " << endl << measurementPtr->covariance_ << endl);
-        // }
+        //               <<  "covariances: " << endl << measurementPtr->covariance_ << endl)
         double delta = measurementPtr->time_ - filter_.getLastMeasurementTime();
+        // ROS_INFO_STREAM("delta: " << std::setprecision(20) << delta << endl);
         if(filter_.getInitialisedStatus()){
+
           filter_.predict(delta);
-          filter_.update(measurementPtr);
-        } else{
+          if(delta>=0)
+           filter_.update(measurementPtr);
+        } else {
           // Initialize the filter, but only with the values we're using
-          if(isDebugMode_){
-            ROS_INFO_STREAM("=============================Initialising Filter=============================\n");
-          }
+          DEBUG("=============================Initialising Filter=============================\n");
           arma::colvec state(STATE_SIZE);
           arma::mat estimateErrorCovariance(STATE_SIZE,STATE_SIZE);
           state.zeros();

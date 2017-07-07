@@ -1,4 +1,4 @@
-DEBUG(#include "sensor_fusion/defs.hpp"
+#include "sensor_fusion/defs.hpp"
 #include "sensor_fusion/filter_core.h"
 
 using namespace std;
@@ -164,8 +164,8 @@ namespace Fusion{
 
   void EkfCore::predict(const double delta){
     DEBUG( "=============================Before Prediction Step=============================\n"
-                << "Delta: " << delta << endl
-                << "State:\n"<< state_ << endl
+                << "Delta: " << std::setprecision(14) << delta << endl
+                << "State:\n"<< std::setprecision(2) << state_ << endl
                 << "Process Matrix:\n" << processMatrix_ << endl
                 << "processMatrixJacobian:\n" << processMatrixJacobian_ << endl
                 << "estimateErrorCovariance:\n" << estimateErrorCovariance_ << endl
@@ -316,8 +316,8 @@ namespace Fusion{
     // @TODO need to think about pointers (big matrices) atleast for processNoiseCovariance_
     estimateErrorCovariance_ = processMatrixJacobian_*estimateErrorCovariance_*processMatrixJacobian_.t() + delta*processNoiseCovariance_;
     DEBUG("=============================Prediction Step=============================\n"
-                << "Delta: " << delta << endl
-                << "State:\n"<< state_ << endl
+                << "Delta: " << std::setprecision(14) << delta << endl
+                << "State:\n"<< std::setprecision(2) <<state_ << endl
                 << "Process Matrix:\n" << processMatrix_ << endl
                 << "processMatrixJacobian:\n" << processMatrixJacobian_ << endl
                 << "estimateErrorCovariance:\n" << estimateErrorCovariance_ << endl
@@ -334,7 +334,7 @@ namespace Fusion{
       }
     }
     // std::cout<< "updateIndices:" << updateIndices << endl;
-
+    lastMeasurementTime_ = measurement->time_;
     // Construct all the measurement matrices from these udpated indices size;
     arma::colvec innovation(updateIndices.size());                                    // y
     arma::mat measurementMatrix(updateIndices.size(), state_.n_rows);               // H
@@ -378,6 +378,7 @@ namespace Fusion{
                 << "estimateErrorCovariance:\n" << estimateErrorCovariance_ << endl
                 << "State:\n" << state_ << endl;
     )
+
 
   } // method EkfCore::update
 } // namespaceFilterCore
