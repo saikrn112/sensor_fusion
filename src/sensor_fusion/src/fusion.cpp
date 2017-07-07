@@ -225,7 +225,7 @@ namespace Fusion{
           ROS_INFO_STREAM("delta: " << std::setprecision(20) << delta << endl);
           filter_.predict(delta);
           if(delta>=0)
-           filter_.update(measurementPtr);
+           filter_.update(measurementPtr,ros::Time::now().toSec());
         } else {
           // Initialize the filter, but only with the values we're using
           DEBUG("=============================Initialising Filter=============================\n");
@@ -263,7 +263,6 @@ namespace Fusion{
       arma::colvec state = filter_.getState();
       const arma::mat& covariance = filter_.getProcessNoiseCovariance();
       msg.header.frame_id = "odom";
-      msg.header.stamp = ros::Time::now();
       msg.child_frame_id = "quad";
       msg.header.stamp = ros::Time(filter_.getLastFilterTime());
       msg.pose.pose.position.x = state(StatePositionX);
