@@ -43,7 +43,7 @@ namespace Fusion{
     processNoiseCovariance_(StateQuaternion3, StateQuaternion3) = 0.01;
     processNoiseCovariance_(StateOmegaX, StateOmegaX) = 0.01;
     processNoiseCovariance_(StateOmegaY, StateOmegaY) = 0.01;
-    processNoiseCovariance_(StateOmegaZ), StateOmegaZ) = 0.02;
+    processNoiseCovariance_(StateOmegaZ, StateOmegaZ) = 0.02;
     processNoiseCovariance_(StateAcclerationX, StateAcclerationX) = 0.01;
     processNoiseCovariance_(StateAcclerationY, StateAcclerationY) = 0.01;
     processNoiseCovariance_(StateAcclerationZ, StateAcclerationZ) = 0.015;
