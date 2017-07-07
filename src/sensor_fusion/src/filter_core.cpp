@@ -1,4 +1,4 @@
-#include "sensor_fusion/defs.hpp"
+DEBUG(#include "sensor_fusion/defs.hpp"
 #include "sensor_fusion/filter_core.h"
 
 using namespace std;
@@ -8,9 +8,9 @@ std::ostream &operator<<(std::ostream &output, const std::vector<int>& msg){
   int vecSize = msg.size();
   output << "[";
   for(int i=0; i<vecSize; i++){
-    output << msg[i];
+    output << msg[i]<<" ";
   }
-  output << endl;
+  output <<"]" << endl;
   return output;
 };
 
@@ -30,7 +30,8 @@ namespace Fusion{
   lastFilterTime_(0.0),
   lastMeasurementTime_(0.0),
   lastUpdateTime_(0.0),
-  isInitialised_(false){
+  isInitialised_(false),
+  isDebugMode_(false){
     state_.zeros();
     predictedState_.zeros();
     processMatrix_.eye();
@@ -103,6 +104,10 @@ namespace Fusion{
     return lastMeasurementTime_;
   }// method getLastMeasurementTime
 
+  bool EkfCore::getDebugStatus(){
+    return isDebugMode_;
+  }// method getDebugStatus
+
   void EkfCore::setState(const arma::colvec& state){
     state_ = state;
   }// method setState
@@ -139,6 +144,10 @@ namespace Fusion{
     lastUpdateTime_ = msg;
   }// setLastUpdateTime
 
+  void EkfCore::setDebugStatus(bool msg){
+    isDebugMode_ = msg;
+  }// setDebugStatus
+
   void EkfCore::quatNormalize(){
     double q0 = state_(StateQuaternion0);
     double q1 = state_(StateQuaternion1);
@@ -154,6 +163,15 @@ namespace Fusion{
   }
 
   void EkfCore::predict(const double delta){
+    DEBUG( "=============================Before Prediction Step=============================\n"
+                << "Delta: " << delta << endl
+                << "State:\n"<< state_ << endl
+                << "Process Matrix:\n" << processMatrix_ << endl
+                << "processMatrixJacobian:\n" << processMatrixJacobian_ << endl
+                << "estimateErrorCovariance:\n" << estimateErrorCovariance_ << endl
+                << "processNoiseCovariance:\n" << processNoiseCovariance_ << endl;
+    )
+
     /* Temporary Variables */
     // Quaternion components
     double vx    = state_(StateVelocityX);
@@ -297,7 +315,14 @@ namespace Fusion{
     // @NOTE need to understand why we need delta in front of processNoiseCovariance_
     // @TODO need to think about pointers (big matrices) atleast for processNoiseCovariance_
     estimateErrorCovariance_ = processMatrixJacobian_*estimateErrorCovariance_*processMatrixJacobian_.t() + delta*processNoiseCovariance_;
-
+    DEBUG("=============================Prediction Step=============================\n"
+                << "Delta: " << delta << endl
+                << "State:\n"<< state_ << endl
+                << "Process Matrix:\n" << processMatrix_ << endl
+                << "processMatrixJacobian:\n" << processMatrixJacobian_ << endl
+                << "estimateErrorCovariance:\n" << estimateErrorCovariance_ << endl
+                << "processNoiseCovariance:\n" << processNoiseCovariance_ << endl;
+    )
   } // method EkfCore::process
 
   void EkfCore::update(const SensorMeasurementPtr& measurement){
@@ -308,7 +333,7 @@ namespace Fusion{
         updateIndices.push_back(i);
       }
     }
-    ROS_INFO_STREAM("updateVector: " << measurement->updateVector_ << endl);
+    // std::cout<< "updateIndices:" << updateIndices << endl;
 
     // Construct all the measurement matrices from these udpated indices size;
     arma::colvec innovation(updateIndices.size());                                    // y
@@ -322,24 +347,37 @@ namespace Fusion{
     kalmanGainMatrix.zeros();
     measurementCovarianceMatrix.zeros();
 
-    // for(int i=0; i<updateIndices.size(); i++){
-    //   measurementMatrix(updateIndices[i],i) = 1;
-    // }
-    // arma::colvec tmpMeasurement(updateIndices.size());
-    // for(int i=0; i<updateIndices.size(); i++){
-    //   tmpMeasurement(i) = measurement->measurement_(updateIndices[i]);
-    // }
-    // innovation = tmpMeasurement - measurementMatrix*state_;
-    //
-    // for(int i=0; i<updateIndices.size(); i++){
-    //   measurementCovarianceMatrix(i,i) = measurement->covariance_(updateIndices[i],updateIndices[i]);
-    // }
-    // arma::mat pHt = estimateErrorCovariance_*measurementMatrix.t();
-    // innovationCovariance = measurementCovarianceMatrix*pHt + measurementCovarianceMatrix;
-    // kalmanGainMatrix = pHt*innovation.i();
-    //
-    // state_ += kalmanGainMatrix*innovation;
-    // estimateErrorCovariance_ = (identity_ - kalmanGainMatrix*measurementMatrix)*estimateErrorCovariance_;
+    for(int i=0; i<updateIndices.size(); i++){
+      measurementMatrix(i,updateIndices[i]) = 1;
+    }
+    // std::cout << "measurementMatrix: \n" << measurementMatrix << endl;
+    arma::colvec tmpMeasurement(updateIndices.size());
+    for(int i=0; i<updateIndices.size(); i++){
+      tmpMeasurement(i) = measurement->measurement_(updateIndices[i]);
+    }
+    innovation = tmpMeasurement - measurementMatrix*state_;
+
+    for(int i=0; i<updateIndices.size(); i++){
+      measurementCovarianceMatrix(i,i) = measurement->covariance_(updateIndices[i],updateIndices[i]);
+    }
+    arma::mat pHt = estimateErrorCovariance_*measurementMatrix.t();
+    innovationCovariance = measurementMatrix*pHt + measurementCovarianceMatrix;
+    kalmanGainMatrix = pHt*innovationCovariance.i();
+
+    state_ += kalmanGainMatrix*innovation;
+    estimateErrorCovariance_ = (identity_ - kalmanGainMatrix*measurementMatrix)*estimateErrorCovariance_;
+    quatNormalize();
+    DEBUG("=============================Update Step=============================\n"
+                << "Measurement:\n" << measurement->measurement_ << endl
+                << "Update Indices" << updateIndices << endl
+                << "Measurement Matrix(H)\n:" << measurementMatrix << endl
+                << "Temporary Measurement Vector:\n" << tmpMeasurement << endl
+                << "Measurement Covariance Matrix(R):\n" << measurementCovarianceMatrix << endl
+                << "Innovation Covariance(S):\n" << innovationCovariance << endl
+                << "kalmanGainMatrix(K):\n" << kalmanGainMatrix << endl
+                << "estimateErrorCovariance:\n" << estimateErrorCovariance_ << endl
+                << "State:\n" << state_ << endl;
+    )
 
   } // method EkfCore::update
 } // namespaceFilterCore

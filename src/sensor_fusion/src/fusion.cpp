@@ -8,8 +8,7 @@ namespace Fusion{
 
     Ekf::Ekf(ros::NodeHandle* nodeHandle):
     nh_(*nodeHandle),
-    nhPriv_("~")
-      {
+    nhPriv_("~"){
       ROS_INFO("Got the Node Handle. Initialising IMU, GPS and Odometry Callback");
       imuSub = nh_.subscribe("/imu/data",1,&Ekf::imu_cb,this);
       // gpsSub = nh_.subscribe("/navsat/fix",1,&Ekf::gps_cb,this);
@@ -32,7 +31,7 @@ namespace Fusion{
     } // Constructor
 
     void Ekf::imu_cb(const sensor_msgs::Imu::ConstPtr& msg){
-      // ROS_INFO("in Imu call back");
+      ROS_INFO("in Imu call back");
       // //@TODO convert 3x3 covariance to 4x4 covariance. Temporarily filling it with identity
       // //@TODO confirm that all the covariance matrices are just diagonal matrix;
       // //@TODO if they are just constants why not just hard code or parameterise them instead of reading from msgs;
@@ -157,8 +156,7 @@ namespace Fusion{
         if(filter_.getInitialisedStatus()){
           filter_.predict(delta);
           filter_.update(measurementPtr);
-        }
-        else{
+        } else{
           // Initialize the filter, but only with the values we're using
           if(isDebugMode_){
             ROS_INFO_STREAM("=============================Initialising Filter=============================\n");

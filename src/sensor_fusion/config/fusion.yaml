@@ -24,7 +24,7 @@
 #                            0,    0,    0,    0,    0,    0,    0,     0,     0,    0,    0,    0,    0,    0,    0.    0,   0,    0,    0,    0,    0,    0,    0015]
 #                            0,    0,    0,    0,    0,    0,    0,     0,     0,    0,    0,    0,    0,    0,    0.    0,   0,    0,    0,    0,    0,    0,    0015]
 sensor_fusion:
-  debug_mode: false
+  debug_mode: true
   remove_gravity: true
   process_noise_covariance: [1, 0, 0,
                              0, 0, 0,

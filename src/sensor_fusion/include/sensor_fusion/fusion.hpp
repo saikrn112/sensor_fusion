@@ -32,6 +32,7 @@ namespace Fusion{
       bool isDebugMode_;
       bool removeGravititionalAcceleration_;
       FilterCore::SensorMeasurementPtrQueue measurementPtrQueue_;
+
     public:
 
       Ekf(ros::NodeHandle*); // Constructor
