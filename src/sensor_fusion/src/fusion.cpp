@@ -25,8 +25,8 @@ namespace Fusion{
       // filter_.setState(state);
       while(ros::ok()){
         integrateSensorMeasurements();
-        // getFusedState(fusedState);
-        // pub.publish(fusedState);
+        getFusedState(fusedState);
+        pub.publish(fusedState);
         ros::spinOnce();
       }
     } // Constructor
@@ -88,11 +88,25 @@ namespace Fusion{
       covariance.submat(StateAcclerationX,StateAcclerationX,StateAcclerationZ,StateAcclerationZ) = accelerationCovariance;
       covariance.submat(StateOmegaX,StateOmegaX,StateOmegaZ,StateOmegaZ) = omegaCovariance;
 
+      // updateVector
+      std::vector<int> updateVector(STATE_SIZE,0);
+      updateVector[StateQuaternion0] = 1;
+      updateVector[StateQuaternion1] = 1;
+      updateVector[StateQuaternion2] = 1;
+      updateVector[StateQuaternion3] = 1;
+      updateVector[StateOmegaX] = 1;
+      updateVector[StateOmegaY] = 1;
+      updateVector[StateOmegaZ] = 1;
+      updateVector[StateAcclerationX] = 1;
+      updateVector[StateAcclerationY] = 1;
+      updateVector[StateAcclerationZ] = 1;
+
       //Enqueuing the IMU measurement in the priority queue.
       FilterCore::SensorMeasurementPtr measurementPtr = FilterCore::SensorMeasurementPtr(new FilterCore::SensorMeasurement);
       measurementPtr->topicName_ = "IMU";
       measurementPtr->measurement_ = measurement;
       measurementPtr->covariance_ = covariance;
+      measurementPtr->updateVector_ = updateVector;
       measurementPtr->time_ = msg->header.stamp.toSec();
       if(isDebugMode_){
         ROS_INFO_STREAM("measurement_topic: " << measurementPtr->topicName_ << endl
@@ -138,8 +152,7 @@ namespace Fusion{
         }
         double delta = measurementPtr->time_ - filter_.getLastMeasurementTime();
         filter_.predict(delta);
-
-        // filter_.update(measurementPtr);
+        filter_.update(measurementPtr);
       }
     }// integrateSensorMeasurements
 

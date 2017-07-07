@@ -11,6 +11,7 @@ namespace Fusion{
   const int MAGNETIC_XYZ_SIZE = 3;
   const int STATE_SIZE = POSITION_SIZE + VELOCITY_SIZE + ACCELERATION_SIZE + QUAT_SIZE + OMEGA_SIZE + BIAS_SIZE  ;
   const int ANGLES_SIZE = 3; //currently used only for anglesCovariance() initialisation
+  const int IMU_MEASUREMENT_SIZE = QUAT_SIZE + ACCELERATION_SIZE + OMEGA_SIZE; //
   // Frequently Used Constants
   const double PI = 3.141592653589793;
   const double G = 9.80665; // m/s2
