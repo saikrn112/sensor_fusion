@@ -11,11 +11,11 @@
 - [x] priorityMeasurementQueue variable
 - [x] print matrices and vectors coming from IMU message
 - [x] methods for process and integrate Measurements
+- [x] collect bagfiles of imu/data gps/fix from husky simulator for decreasing the load
+- [x] Enqueue the message and check its validity in the EkfCore Predict and Update measurement
+- [x] Update method update (:P)
 
-- [ ] Update method update (:P) 
 - [ ] converting GPS lat/long to NED positions using the library that was used in Team Abhiyaan
-- [ ] collect bagfiles of imu/data gps/fix from husky simulator for decreasing the load
-- [ ] Enqueue the message and check its validity in the EkfCore Predict and Update measurement
 - [ ] Converting 3x3 covaraince to 4x4 covariance (euler angles to quaternion)
 - [ ] convariance matrix for getFusedState
 - [ ] talk to shrikant sir about 4x4 quaternion covariance or derive the jacobian and get the final matrices
