@@ -12,7 +12,7 @@ namespace Fusion{
       ROS_INFO("Got the Node Handle. Initialising IMU, GPS and Odometry Callback");
       imuSub = nh_.subscribe("/imu/data",1,&Ekf::imu_cb,this);
       // gpsSub = nh_.subscribe("/navsat/fix",1,&Ekf::gps_cb,this);
-      // odomSub = nh_.subscribe("/odom",1,&Ekf::odom_cb,this);
+      odomSub = nh_.subscribe("/odom",1,&Ekf::odom_cb,this);
 
       pub = nh_.advertise<nav_msgs::Odometry>("/odomCombined",1,true);
       Ekf::loadParams();
@@ -120,8 +120,73 @@ namespace Fusion{
     } // method gps_cb
 
     void Ekf::odom_cb(const nav_msgs::Odometry::ConstPtr& msg){
-      // addMeasurementinQueue(msg, ros::time::Now());
       ROS_INFO("in odom call back");
+      arma::mat anglesCovariance(ANGLES_SIZE,ANGLES_SIZE);
+      anglesCovariance.eye();
+      anglesCovariance(0,0) = msg->orientation_covariance[0];
+      anglesCovariance(1,1) = msg->orientation_covariance[4];
+      anglesCovariance(2,2) = msg->orientation_covariance[8];
+
+      arma::mat quaternionCovariance(QUAT_SIZE,QUAT_SIZE);
+      quaternionCovariance.eye();
+      // quaternionCovariance *= 1e-3;
+      arma::mat accelerationCovariance(ACCELERATION_SIZE,ACCELERATION_SIZE);
+      accelerationCovariance.eye();
+      accelerationCovariance(0,0) = msg->linear_acceleration_covariance[0];
+      accelerationCovariance(1,1) = msg->linear_acceleration_covariance[4];
+      accelerationCovariance(2,2) = msg->linear_acceleration_covariance[8];
+
+      arma::mat omegaCovariance(OMEGA_SIZE,OMEGA_SIZE);
+      omegaCovariance.eye();
+      omegaCovariance(0,0) = msg->angular_velocity_covariance[0];
+      omegaCovariance(1,1) = msg->angular_velocity_covariance[4];
+      omegaCovariance(2,2) = msg->angular_velocity_covariance[8];
+
+      arma::colvec measurement(STATE_SIZE);
+      measurement.zeros();
+      measurement(StateQuaternion0) = msg->orientation.x; // @TODO make sure that q0 is scalar
+      measurement(StateQuaternion1) = msg->orientation.y;
+      measurement(StateQuaternion2) = msg->orientation.z;
+      measurement(StateQuaternion3) = msg->orientation.w;
+      measurement(StateAcclerationX) = msg->linear_acceleration.x;
+      measurement(StateAcclerationY) = msg->linear_acceleration.y;
+      measurement(StateAcclerationZ) = msg->linear_acceleration.z;
+      measurement(StateOmegaX) = msg->angular_velocity.x;
+      measurement(StateOmegaY) = msg->angular_velocity.y;
+      measurement(StateOmegaZ) = msg->angular_velocity.z;
+
+      arma::mat covariance(STATE_SIZE,STATE_SIZE);
+      covariance.eye();
+      covariance.submat(StateQuaternion0,StateQuaternion0,StateQuaternion3,StateQuaternion3) = quaternionCovariance;
+      covariance.submat(StateAcclerationX,StateAcclerationX,StateAcclerationZ,StateAcclerationZ) = accelerationCovariance;
+      covariance.submat(StateOmegaX,StateOmegaX,StateOmegaZ,StateOmegaZ) = omegaCovariance;
+
+      // updateVector
+      std::vector<int> updateVector(STATE_SIZE,0);
+      updateVector[StateQuaternion0] = 1;
+      updateVector[StateQuaternion1] = 1;
+      updateVector[StateQuaternion2] = 1;
+      updateVector[StateQuaternion3] = 1;
+      updateVector[StateOmegaX] = 1;
+      updateVector[StateOmegaY] = 1;
+      updateVector[StateOmegaZ] = 1;
+      updateVector[StateAcclerationX] = 1;
+      updateVector[StateAcclerationY] = 1;
+      updateVector[StateAcclerationZ] = 1;
+      // ROS_INFO_STREAM("updateVector: " << updateVector << endl);
+
+      //Enqueuing the IMU measurement in the priority queue.
+      FilterCore::SensorMeasurementPtr measurementPtr = FilterCore::SensorMeasurementPtr(new FilterCore::SensorMeasurement);
+      measurementPtr->topicName_ = "IMU";
+      measurementPtr->measurement_ = measurement;
+      measurementPtr->covariance_ = covariance;
+      measurementPtr->updateVector_ = updateVector;
+      measurementPtr->time_ = msg->header.stamp.toSec();
+      // DEBUG("measurement_topic: " << measurementPtr->topicName_ << endl
+      //               <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
+      //               <<  "covariances: " << endl << measurementPtr->covariance_ << endl;
+      // )
+      addMeasurementinQueue(measurementPtr);
     } // method odom_cb
 
     void Ekf::addMeasurementinQueue(const FilterCore::SensorMeasurementPtr& measurementPtr){
@@ -148,10 +213,9 @@ namespace Fusion{
         //               << "measurement_topic: " << measurementPtr->topicName_ << endl
         //               <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
         //               <<  "covariances: " << endl << measurementPtr->covariance_ << endl)
-        double delta = measurementPtr->time_ - filter_.getLastMeasurementTime();
-        ROS_INFO_STREAM("delta: " << std::setprecision(20) << delta << endl);
         if(filter_.getInitialisedStatus()){
-
+          double delta = measurementPtr->time_ - filter_.getLastMeasurementTime();
+          ROS_INFO_STREAM("delta: " << std::setprecision(20) << delta << endl);
           filter_.predict(delta);
           if(delta>=0)
            filter_.update(measurementPtr);
