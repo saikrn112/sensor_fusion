@@ -301,49 +301,7 @@ namespace Fusion{
       XmlRpc::XmlRpcValue processNoiseCovarConfig;
       if (nhPriv_.hasParam("process_noise_covariance"))
       {
-        try
-        {
-          nhPriv_.getParam("process_noise_covariance", processNoiseCovarConfig);
-          ROS_ASSERT(processNoiseCovarConfig.getType() == XmlRpc::XmlRpcValue::TypeArray);
-
-          int matSize = processNoiseCovariance.n_rows;
-
-          for (int i = 0; i < matSize; i++)
-          {
-            for (int j = 0; j < matSize; j++)
-            {
-              try
-              {
-                // These matrices can cause problems if all the types
-                // aren't specified with decimal points. Handle that
-                // using string streams.
-                std::ostringstream ostr;
-                ostr << processNoiseCovarConfig[matSize * i + j];
-                std::istringstream istr(ostr.str());
-                istr >> processNoiseCovariance(i, j);
-              }
-              catch(XmlRpc::XmlRpcException &e)
-              {
-                throw e;
-              }
-              catch(...)
-              {
-                throw;
-              }
-            }
-          }
-          processNoiseCovariance.print();
-          // RF_DEBUG("Process noise covariance is:\n" << processNoiseCovariance << "\n");
-        }
-        catch (XmlRpc::XmlRpcException &e)
-        {
-          ROS_ERROR_STREAM("ERROR reading sensor config: " <<
-                           e.getMessage() <<
-                           " for process_noise_covariance (type: " <<
-                           processNoiseCovarConfig.getType() << ")");
-        }
-        // @TODO comment it out when doen testing
-        // filter_.setProcessNoiseCovariance(processNoiseCovariance);
+  
       }
     }// method loadParams
 
