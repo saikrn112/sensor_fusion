@@ -11,8 +11,8 @@ namespace Fusion{
     nhPriv_("~"){
       ROS_INFO("Got the Node Handle. Initialising IMU, GPS and Odometry Callback");
       imuSub = nh_.subscribe("/imu/data",1,&Ekf::imu_cb,this);
-      // gpsSub = nh_.subscribe("/navsat/fix",1,&Ekf::gps_cb,this);
-      odomSub = nh_.subscribe("/odom",1,&Ekf::odom_cb,this);
+      gpsSub = nh_.subscribe("/navsat/fix",1,&Ekf::gps_cb,this);
+      odomSub = nh_.subscribe("/odometry/filtered",1,&Ekf::odom_cb,this);
 
       pub = nh_.advertise<nav_msgs::Odometry>("/odomCombined",1,true);
       Ekf::loadParams();
@@ -31,7 +31,7 @@ namespace Fusion{
     } // Constructor
 
     void Ekf::imu_cb(const sensor_msgs::Imu::ConstPtr& msg){
-      // ROS_INFO("in Imu call back");
+      ROS_INFO("in Imu call back");
       // //@TODO convert 3x3 covariance to 4x4 covariance. Temporarily filling it with identity
       // //@TODO confirm that all the covariance matrices are just diagonal matrix;
       // //@TODO if they are just constants why not just hard code or parameterise them instead of reading from msgs;
@@ -120,64 +120,71 @@ namespace Fusion{
     } // method gps_cb
 
     void Ekf::odom_cb(const nav_msgs::Odometry::ConstPtr& msg){
-      ROS_INFO("in odom call back");
-      arma::mat anglesCovariance(ANGLES_SIZE,ANGLES_SIZE);
-      anglesCovariance.eye();
-      anglesCovariance(0,0) = msg->orientation_covariance[0];
-      anglesCovariance(1,1) = msg->orientation_covariance[4];
-      anglesCovariance(2,2) = msg->orientation_covariance[8];
+      ROS_INFO("in Odom call back");
+      arma::mat positionCovariance(POSITION_SIZE,POSITION_SIZE);
+      positionCovariance.eye();
+      for(int i=0; i<POSITION_SIZE; i++){
+        positionCovariance(i,i) = msg->pose.covariance[i*POSITION_SIZE +i];
+      }
 
+      arma::mat orientationCovariance(POSITION_SIZE,POSITION_SIZE);
+      orientationCovariance.eye();
+      for(int i=POSITION_SIZE; i<POSE_SIZE; i++){
+        orientationCovariance(i-POSITION_SIZE,i-POSITION_SIZE) = msg->pose.covariance[i*ANGLES_SIZE +i];
+      }
       arma::mat quaternionCovariance(QUAT_SIZE,QUAT_SIZE);
       quaternionCovariance.eye();
-      // quaternionCovariance *= 1e-3;
-      arma::mat accelerationCovariance(ACCELERATION_SIZE,ACCELERATION_SIZE);
-      accelerationCovariance.eye();
-      accelerationCovariance(0,0) = msg->linear_acceleration_covariance[0];
-      accelerationCovariance(1,1) = msg->linear_acceleration_covariance[4];
-      accelerationCovariance(2,2) = msg->linear_acceleration_covariance[8];
 
-      arma::mat omegaCovariance(OMEGA_SIZE,OMEGA_SIZE);
-      omegaCovariance.eye();
-      omegaCovariance(0,0) = msg->angular_velocity_covariance[0];
-      omegaCovariance(1,1) = msg->angular_velocity_covariance[4];
-      omegaCovariance(2,2) = msg->angular_velocity_covariance[8];
+      arma::mat twistCovariance(POSE_SIZE,POSE_SIZE);
+      twistCovariance.eye();
+      for(int i=0; i<POSE_SIZE; i++){
+        twistCovariance(i,i) = msg->twist.covariance[i*POSE_SIZE+i];
+      }
+
 
       arma::colvec measurement(STATE_SIZE);
       measurement.zeros();
-      measurement(StateQuaternion0) = msg->orientation.x; // @TODO make sure that q0 is scalar
-      measurement(StateQuaternion1) = msg->orientation.y;
-      measurement(StateQuaternion2) = msg->orientation.z;
-      measurement(StateQuaternion3) = msg->orientation.w;
-      measurement(StateAcclerationX) = msg->linear_acceleration.x;
-      measurement(StateAcclerationY) = msg->linear_acceleration.y;
-      measurement(StateAcclerationZ) = msg->linear_acceleration.z;
-      measurement(StateOmegaX) = msg->angular_velocity.x;
-      measurement(StateOmegaY) = msg->angular_velocity.y;
-      measurement(StateOmegaZ) = msg->angular_velocity.z;
+      measurement(StatePositionX) = msg->pose.pose.position.x;
+      measurement(StatePositionY) = msg->pose.pose.position.y;
+      measurement(StatePositionZ) = msg->pose.pose.position.z;
+      measurement(StateQuaternion0) = msg->pose.pose.orientation.x;
+      measurement(StateQuaternion1) = msg->pose.pose.orientation.y;
+      measurement(StateQuaternion2) = msg->pose.pose.orientation.z;
+      measurement(StateQuaternion3) = msg->pose.pose.orientation.w;
+      measurement(StateVelocityX) = msg->twist.twist.linear.x;
+      measurement(StateVelocityY) = msg->twist.twist.linear.y;
+      measurement(StateVelocityZ) = msg->twist.twist.linear.z;
+      measurement(StateOmegaX) = msg->twist.twist.angular.x;
+      measurement(StateOmegaY) = msg->twist.twist.angular.y;
+      measurement(StateOmegaZ) = msg->twist.twist.angular.z;
 
       arma::mat covariance(STATE_SIZE,STATE_SIZE);
       covariance.eye();
+      covariance.submat(StatePositionX,StatePositionX,StatePositionZ,StatePositionZ) = positionCovariance;
       covariance.submat(StateQuaternion0,StateQuaternion0,StateQuaternion3,StateQuaternion3) = quaternionCovariance;
-      covariance.submat(StateAcclerationX,StateAcclerationX,StateAcclerationZ,StateAcclerationZ) = accelerationCovariance;
-      covariance.submat(StateOmegaX,StateOmegaX,StateOmegaZ,StateOmegaZ) = omegaCovariance;
+      covariance.submat(StateVelocityX,StateVelocityX,StateOmegaZ,StateOmegaZ) = twistCovariance;
 
       // updateVector
       std::vector<int> updateVector(STATE_SIZE,0);
+
+      updateVector[StatePositionX] = 1;
+      updateVector[StatePositionY] = 1;
+      updateVector[StatePositionZ] = 1;
       updateVector[StateQuaternion0] = 1;
       updateVector[StateQuaternion1] = 1;
       updateVector[StateQuaternion2] = 1;
       updateVector[StateQuaternion3] = 1;
+      updateVector[StateVelocityX] = 1;
+      updateVector[StateVelocityY] = 1;
+      updateVector[StateVelocityZ] = 1;
       updateVector[StateOmegaX] = 1;
       updateVector[StateOmegaY] = 1;
       updateVector[StateOmegaZ] = 1;
-      updateVector[StateAcclerationX] = 1;
-      updateVector[StateAcclerationY] = 1;
-      updateVector[StateAcclerationZ] = 1;
       // ROS_INFO_STREAM("updateVector: " << updateVector << endl);
 
       //Enqueuing the IMU measurement in the priority queue.
       FilterCore::SensorMeasurementPtr measurementPtr = FilterCore::SensorMeasurementPtr(new FilterCore::SensorMeasurement);
-      measurementPtr->topicName_ = "IMU";
+      measurementPtr->topicName_ = "ODOM";
       measurementPtr->measurement_ = measurement;
       measurementPtr->covariance_ = covariance;
       measurementPtr->updateVector_ = updateVector;
@@ -256,6 +263,8 @@ namespace Fusion{
       arma::colvec state = filter_.getState();
       const arma::mat& covariance = filter_.getProcessNoiseCovariance();
       msg.header.frame_id = "odom";
+      msg.header.stamp = ros::Time::now();
+      msg.child_frame_id = "quad";
       msg.header.stamp = ros::Time(filter_.getLastFilterTime());
       msg.pose.pose.position.x = state(StatePositionX);
       msg.pose.pose.position.y = state(StatePositionY);

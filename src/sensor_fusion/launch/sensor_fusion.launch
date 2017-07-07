@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <launch>
-  <!-- <node pkg="rosbag" type="play" name="bagfileplayer" args= "clock /home/honeywell/fusion/bagfiles/movement.bag"/> -->
+  <!-- <node pkg="rosbag" type="play" name="bagfileplayer" args= "--clock /home/honeywell/fusion/bagfiles/fullOdom.bag"/> -->
   <rosparam command="load" file="$(find sensor_fusion)/config/fusion.yaml" />
-  <node pkg="sensor_fusion" type="sensor_fusion_node" name="sensor_fusion" clear_params="true" output="screen"/>
+  <node pkg="sensor_fusion" type="sensor_fusion_node" name="sensor_fusion" clear_params="true" output="screen">
+    <remap from="/odometry/filtered" to="/husky_velocity_controller/odom"/>
+    <remap from="/navsat/fix" to="/fix"/>
+    <!-- <remap from="/imu/data" to="/imu"/> -->
+  </node>
 </launch>
