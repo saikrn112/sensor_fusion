@@ -14,6 +14,7 @@
 
 - [ ] Converting 3x3 covaraince to 4x4 covariance (euler angles to quaternion)
 - [ ] talk to shrikant sir about 4x4 quaternion covariance or derive the jacobian and get the final matrices
+- [ ] talk to shrikant sir about 4x4 quaternion covariance or derive the jacobian and get the final matrices
 - [ ] convariance matrix for getFusedState
 - [ ] converting GPS lat/long to NED positions using the library that was used in Team Abhiyaan
 - [ ] collect bagfiles of imu/data gps/fix from husky simulator for decreasing the load
