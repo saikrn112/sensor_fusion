@@ -29,8 +29,9 @@
   1. [ ] Raw Encoder data
   1. [ ] Laser Scans or Point Cloud
   1. [ ] Latitude and Longitude if possible correct altitude :D
-- [ ] Converting 3x3 covaraince to 4x4 covariance (euler angles covariance to quaternion covariance)
-- [ ] convariance 4x4 covariance to 3x3 covariance (quaternion to euler angles covariance)
+- [ ] Covariance mahima -[conversionCode]{http://www.mira-project.org/MIRA-doc/YawPitchRoll_8h_source.html}
+  1. [ ] Converting 3x3 covaraince to 4x4 covariance (euler angles covariance to quaternion covariance) line - 201
+  1. [ ] convariance 4x4 covariance to 3x3 covariance (quaternion to euler angles covariance) line - 318
 - [ ] talk to shrikant sir about 4x4 quaternion covariance or derive the jacobian and get the final matrices
 - [ ] Correct Noise variances as input both sensor measurements(R) and proecss noise (Q)
   1. [ ] Identify the sensors
