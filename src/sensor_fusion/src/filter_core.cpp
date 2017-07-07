@@ -376,9 +376,8 @@ namespace Fusion{
                 << "Innovation Covariance(S):\n" << innovationCovariance << endl
                 << "kalmanGainMatrix(K):\n" << kalmanGainMatrix << endl
                 << "estimateErrorCovariance:\n" << estimateErrorCovariance_ << endl
-                << "State:\n" << state_ << endl;
-    )
-
+                << "State:\n" << state_ << endl)
+    lastFilterTime_ = ros::Time::now();
 
   } // method EkfCore::update
 } // namespaceFilterCore
