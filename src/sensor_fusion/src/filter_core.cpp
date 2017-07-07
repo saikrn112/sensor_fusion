@@ -325,7 +325,7 @@ namespace Fusion{
     )
   } // method EkfCore::process
 
-  void EkfCore::update(const SensorMeasurementPtr& measurement){
+  void EkfCore::update(const SensorMeasurementPtr& measurement, const double currTime){
 
     vector<int> updateIndices;
     for(int i=0; i<measurement->updateVector_.size(); i++) {
@@ -377,7 +377,7 @@ namespace Fusion{
                 << "kalmanGainMatrix(K):\n" << kalmanGainMatrix << endl
                 << "estimateErrorCovariance:\n" << estimateErrorCovariance_ << endl
                 << "State:\n" << state_ << endl)
-    lastFilterTime_ = ros::Time::now();
+    lastFilterTime_ = currTime;
 
   } // method EkfCore::update
 } // namespaceFilterCore
