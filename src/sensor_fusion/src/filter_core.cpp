@@ -308,7 +308,7 @@ namespace Fusion{
         updateIndices.push_back(i);
       }
     }
-    std::cout << updateIndices;
+    ROS_INFO_STREAM("updateVector: " << measurement->updateVector_ << endl);
 
     // Construct all the measurement matrices from these udpated indices size;
     arma::colvec innovation(updateIndices.size());                                    // y
@@ -322,24 +322,24 @@ namespace Fusion{
     kalmanGainMatrix.zeros();
     measurementCovarianceMatrix.zeros();
 
-    for(int i=0; i<updateIndices.size(); i++){
-      measurementMatrix(updateIndices[i],i) = 1;
-    }
-    arma::colvec tmpMeasurement(updateIndices.size());
-    for(int i=0; i<updateIndices.size(); i++){
-      tmpMeasurement(i) = measurement->measurement_(updateIndices[i]);
-    }
-    innovation = tmpMeasurement - measurementMatrix*state_;
-
-    for(int i=0; i<updateIndices.size(); i++){
-      measurementCovarianceMatrix(i,i) = measurement->covariance_(updateIndices[i],updateIndices[i]);
-    }
-    arma::mat pHt = estimateErrorCovariance_*measurementMatrix.t();
-    innovationCovariance = measurementCovarianceMatrix*pHt + measurementCovarianceMatrix;
-    kalmanGainMatrix = pHt*innovation.i();
-
-    state_ += kalmanGainMatrix*innovation;
-    estimateErrorCovariance_ = (identity_ - kalmanGainMatrix*measurementMatrix)*estimateErrorCovariance_;
+    // for(int i=0; i<updateIndices.size(); i++){
+    //   measurementMatrix(updateIndices[i],i) = 1;
+    // }
+    // arma::colvec tmpMeasurement(updateIndices.size());
+    // for(int i=0; i<updateIndices.size(); i++){
+    //   tmpMeasurement(i) = measurement->measurement_(updateIndices[i]);
+    // }
+    // innovation = tmpMeasurement - measurementMatrix*state_;
+    //
+    // for(int i=0; i<updateIndices.size(); i++){
+    //   measurementCovarianceMatrix(i,i) = measurement->covariance_(updateIndices[i],updateIndices[i]);
+    // }
+    // arma::mat pHt = estimateErrorCovariance_*measurementMatrix.t();
+    // innovationCovariance = measurementCovarianceMatrix*pHt + measurementCovarianceMatrix;
+    // kalmanGainMatrix = pHt*innovation.i();
+    //
+    // state_ += kalmanGainMatrix*innovation;
+    // estimateErrorCovariance_ = (identity_ - kalmanGainMatrix*measurementMatrix)*estimateErrorCovariance_;
 
   } // method EkfCore::update
 } // namespaceFilterCore

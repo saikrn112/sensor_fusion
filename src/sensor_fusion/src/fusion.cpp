@@ -101,6 +101,7 @@ namespace Fusion{
       updateVector[StateAcclerationY] = 1;
       updateVector[StateAcclerationZ] = 1;
 
+
       //Enqueuing the IMU measurement in the priority queue.
       FilterCore::SensorMeasurementPtr measurementPtr = FilterCore::SensorMeasurementPtr(new FilterCore::SensorMeasurement);
       measurementPtr->topicName_ = "IMU";
@@ -175,7 +176,7 @@ namespace Fusion{
       msg.twist.twist.angular.x = state(StateOmegaX);
       msg.twist.twist.angular.y = state(StateOmegaY);
       msg.twist.twist.angular.z = state(StateOmegaZ);
-      ROS_INFO_STREAM("msg in getFusedState" << endl << state << endl);
+      // ROS_INFO_STREAM("msg in getFusedState" << endl << state << endl);
       // for(int i=0; i<covariance.size(); i++){
       //   //@TODO convert the quaternion covariance to euler angles covariance.
       //   msg->pose.pose.covariance[i] = covariance[i];
