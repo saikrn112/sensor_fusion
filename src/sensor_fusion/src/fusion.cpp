@@ -139,8 +139,8 @@ namespace Fusion{
       // for that we need to
 
       FilterCore::SensorMeasurementPtr measurementPtr;
-      filter_.setLastUpdateTime(ros::Time::now().toSec());
-      filter_.setLastMeasurementTime(ros::Time::now().toSec());
+      // filter_.setLastUpdateTime(ros::Time::now().toSec());
+      // filter_.setLastMeasurementTime(ros::Time::now().toSec());
       while(ros::ok() && !measurementPtrQueue_.empty()){
         measurementPtr = measurementPtrQueue_.top();
         measurementPtrQueue_.pop();
@@ -149,7 +149,7 @@ namespace Fusion{
         //               <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
         //               <<  "covariances: " << endl << measurementPtr->covariance_ << endl)
         double delta = measurementPtr->time_ - filter_.getLastMeasurementTime();
-        // ROS_INFO_STREAM("delta: " << std::setprecision(20) << delta << endl);
+        ROS_INFO_STREAM("delta: " << std::setprecision(20) << delta << endl);
         if(filter_.getInitialisedStatus()){
 
           filter_.predict(delta);
