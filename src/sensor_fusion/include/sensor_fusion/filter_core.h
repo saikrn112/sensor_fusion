@@ -94,7 +94,7 @@ namespace Fusion {
     EkfCore(); // all the inital parmeters will be updated as the equations are written
     ~EkfCore(); // Close all the files delete all the new type of pointers
 
-    // Getters
+    //Getters
     arma::colvec& getState();
     arma::colvec& getPredictedState();
     arma::mat& getProcessNoiseCovariance();
@@ -106,22 +106,23 @@ namespace Fusion {
     double getLastMeasurementTime();
     double getLastUpdateTime();
     bool getDebugStatus();
-    // Setters
+
+    //Setters
     void setState(const arma::colvec&);
     void setProcessMatrix(const arma::mat&);
     void setProcessMatrixJacobian(const arma::mat&);
     void setEstimateErrorCovariance(const arma::mat&);
     void setProcessNoiseCovariance(const arma::mat&);
-    void setInitialisedStatus(bool);
-    void setLastFilterTime(double);
-    void setLastMeasurementTime(double);
-    void setLastUpdateTime(double);
-    void setDebugStatus(bool);
+    void setInitialisedStatus(const bool);
+    void setLastFilterTime(const double);
+    void setLastMeasurementTime(const double);
+    void setLastUpdateTime(const double);
+    void setDebugStatus(const bool);
 
     // Core functions of the Filter
     void quatNormalize(void);
-    void predict (const double delta);
-    void update (const SensorMeasurementPtr& measurementPtr);
+    void predict (const double );
+    void update (const SensorMeasurementPtr&, const double);
 
   }; // Class EkfCore
 
