@@ -119,7 +119,7 @@ namespace Fusion{
 
     void Ekf::gps_cb(const sensor_msgs::NavSatFix::ConstPtr& msg){
       ROS_INFO("in gps call back");
-      char* zone = new char;
+      std::string zone;
       double initlonN, initlatE=0;
       if(!isGPSFirstMeasurement_){
         gps_common::LLtoUTM(msg->latitude, msg->longitude,initlonN, initlatE,zone);// Converting from lat, long to UTM
@@ -127,16 +127,16 @@ namespace Fusion{
         initialLatInNED_ = initlatE;
         initialAltitude_ = msg->altitude;
         isGPSFirstMeasurement_ = true;
-        // ROS_INFO_STREAM("\ninitialgpsX: " << std::setprecision(10) << initialLatInNED_ << "\ninitialgpsY: " << initialLonInNED_ << "\ninitialgpsZ: " << initialAltitude_);
+        // DEBUG("\ninitialgpsX: " << std::setprecision(10) << initialLatInNED_ << "\ninitialgpsY: " << initialLonInNED_ << "\ninitialgpsZ: " << initialAltitude_);
 
       }
       double latE=0;
       double lonN=0;
       gps_common::LLtoUTM(msg->latitude, msg->longitude,lonN, latE,zone);// Converting from lat, long to UTM
-      double gpsX = latE-initialLatInNED_;
-      double gpsY = lonN-initialLonInNED_;
+      double gpsX = lonN-initialLonInNED_;
+      double gpsY = -latE+initialLatInNED_;
       double gpsZ = msg->altitude - initialAltitude_;
-      ROS_INFO_STREAM("\ngpsX: "<< std::setprecision(20) << gpsX << "\ngpsY: " << gpsY << "\ngpsZ: " << gpsZ);
+      // DEBUG("\ngpsX: "<< std::setprecision(10) << gpsX << "\ngpsY: " << gpsY << "\ngpsZ: " << gpsZ);
       arma::mat positionCovariance(POSITION_SIZE,POSITION_SIZE);
       positionCovariance.eye();
       for(int i=0; i<POSITION_SIZE; i++){
@@ -174,7 +174,7 @@ namespace Fusion{
       // )
       addMeasurementinQueue(measurementPtr);
 
-      delete zone;
+      // delete zone;
     } // method gps_cb
 
     void Ekf::odom_cb(const nav_msgs::Odometry::ConstPtr& msg){
@@ -256,8 +256,6 @@ namespace Fusion{
 
     void Ekf::addMeasurementinQueue(const FilterCore::SensorMeasurementPtr& measurementPtr){
       measurementPtrQueue_.push(measurementPtr);
-      // FilterCore::SensorMeasurementPtr debug = measurementPtrQueue_.top();
-      // ROS_INFO_STREAM("debug state:" << debug->measurement_ << endl);
     } // method addMeasurementinQueue
 
     Ekf::~Ekf(){
@@ -269,20 +267,16 @@ namespace Fusion{
       // for that we need to
 
       FilterCore::SensorMeasurementPtr measurementPtr;
-      // filter_.setLastUpdateTime(ros::Time::now().toSec());
-      // filter_.setLastMeasurementTime(ros::Time::now().toSec());
       while(ros::ok() && !measurementPtrQueue_.empty()){
         measurementPtr = measurementPtrQueue_.top();
         measurementPtrQueue_.pop();
-        // std::cout    << "\nMeasurement topic:" << measurementPtr->topicName_
-        //              << "\nMeasurement Time: " << measurementPtr->time_ << endl;
         // DEBUG("measurements using for integration:" << endl
         //               << "measurement_topic: " << measurementPtr->topicName_ << endl
         //               <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
         //               <<  "covariances: " << endl << measurementPtr->covariance_ << endl)
         if(filter_.getInitialisedStatus()){
           double delta = measurementPtr->time_ - filter_.getLastMeasurementTime();
-          ROS_INFO_STREAM("delta: " << std::setprecision(20) << delta << endl);
+          // ROS_INFO_STREAM("delta: " << std::setprecision(20) << delta << endl);
           filter_.predict(delta);
           if(delta>=0)
            filter_.update(measurementPtr,ros::Time::now().toSec());
@@ -338,11 +332,13 @@ namespace Fusion{
       msg.twist.twist.angular.x = state(StateOmegaX);
       msg.twist.twist.angular.y = state(StateOmegaY);
       msg.twist.twist.angular.z = state(StateOmegaZ);
-      tf2::Quaternion q(state(StateQuaternion0),state(StateQuaternion1),state(StateQuaternion2),state(StateQuaternion3));
-      tf2::Matrix3x3 mat(q);
-      tf2Scalar yaw, roll, pitch = 0;
-      mat.getRPY(roll,pitch,yaw);
-      ROS_INFO_STREAM("\nROLL: " << roll*180/PI << "\npitch: " << pitch*180/PI << "\nyaw: " << yaw*180/PI << endl);
+
+      /* Uncomment the following for printing Euler Angles */ // @TODO some memory issues while printing
+      // tf2::Quaternion q(state(StateQuaternion0),state(StateQuaternion1),state(StateQuaternion2),state(StateQuaternion3));
+      // tf2::Matrix3x3 mat(q);
+      // tf2Scalar yaw, roll, pitch = 0;
+      // mat.getEulerYPR(yaw,pitch,roll);
+      // ROS_INFO_STREAM("\nROLL: " << roll*180/PI << "\npitch: " << pitch*180/PI << "\nyaw: " << yaw*180/PI << endl);
 
       // ROS_INFO_STREAM("msg in getFusedState" << endl << state << endl);
       // for(int i=0; i<covariance.size(); i++){
