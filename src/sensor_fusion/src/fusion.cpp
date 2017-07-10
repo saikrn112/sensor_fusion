@@ -259,7 +259,7 @@ namespace Fusion{
     }// integrateSensorMeasurements
 
 
-    void Ekf::getFusedState( nav_msgs::Odometry& msg){
+    void Ekf::getFusedState( nav_msgs::Odometry& msg) const {
       arma::colvec state = filter_.getState();
       const arma::mat& covariance = filter_.getProcessNoiseCovariance();
       msg.header.frame_id = "odom";
@@ -278,8 +278,12 @@ namespace Fusion{
       msg.twist.twist.angular.x = state(StateOmegaX);
       msg.twist.twist.angular.y = state(StateOmegaY);
       msg.twist.twist.angular.z = state(StateOmegaZ);
+      tf2::Quaternion q(state(StateQuaternion0),state(StateQuaternion1),state(StateQuaternion2),state(StateQuaternion3));
+      tf2::Matrix3x3 mat(q);
+      tf2Scalar yaw, roll, pitch = 0;
+      mat.getRPY(roll,pitch,yaw);
+      ROS_INFO_STREAM("\nROLL: " << roll*180/PI << "\npitch: " << pitch*180/PI << "\nyaw: " << yaw*180/PI << endl);
 
-      
       // ROS_INFO_STREAM("msg in getFusedState" << endl << state << endl);
       // for(int i=0; i<covariance.size(); i++){
       //   //@TODO convert the quaternion covariance to euler angles covariance.

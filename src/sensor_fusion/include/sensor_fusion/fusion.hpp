@@ -7,8 +7,10 @@
 #include <nav_msgs/Odometry.h>
 #include <sensor_fusion/filter_core.h>
 #include <sensor_fusion/defs.hpp>
-#include <tf2/transform_datatypes.h>
+// #include <tf2/transform_datatypes.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <tf2/LinearMath/Quaternion.h>
 #include <XmlRpcException.h>
 
 #include <armadillo>
@@ -46,7 +48,7 @@ namespace Fusion{
       // and also check for the initial measurements
       void initialize(void);
       void loadParams(void);
-      void getFusedState( nav_msgs::Odometry& );
+      void getFusedState( nav_msgs::Odometry& ) const;
       // This function should integrate the measurements
       void integrateSensorMeasurements(void);
       // Kalman Filter predict and Update functions
