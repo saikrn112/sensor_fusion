@@ -22,7 +22,7 @@ namespace Fusion{
       arma::colvec state(STATE_SIZE);
       state.zeros();
       filter_.setState(state);
-      ros::Rate rate(5);
+      ros::Rate rate(50);
       while(ros::ok()){
         integrateSensorMeasurements();
         getFusedState(fusedState);
@@ -218,8 +218,8 @@ namespace Fusion{
       while(ros::ok() && !measurementPtrQueue_.empty()){
         measurementPtr = measurementPtrQueue_.top();
         measurementPtrQueue_.pop();
-        std::cout    << "\nMeasurement topic:" << measurementPtr->topicName_
-                     << "\nMeasurement Time: " << measurementPtr->time_ ;
+        // std::cout    << "\nMeasurement topic:" << measurementPtr->topicName_
+        //              << "\nMeasurement Time: " << measurementPtr->time_ << endl;
         // DEBUG("measurements using for integration:" << endl
         //               << "measurement_topic: " << measurementPtr->topicName_ << endl
         //               <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
