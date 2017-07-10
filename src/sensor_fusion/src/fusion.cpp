@@ -117,8 +117,18 @@ namespace Fusion{
     } // method imu_cb
 
     void Ekf::gps_cb(const sensor_msgs::NavSatFix::ConstPtr& msg){
-      // addMeasurementinQueue(msg, ros::time::Now());
       ROS_INFO("in gps call back");
+      char* zone = new char;
+      if(!isGPSFirstMeasurement_){
+        double latE;
+        double lonN;
+        gps_common::LLtoUTM(msg->latitude, msg->longitude,lonN, latE,zone);// Converting from lat, long to UTM
+        isGPSFirstMeasurement_ = false;
+        initiallonInNED_ = lonN;
+        initialLatInNED_ = latE;
+      }
+      
+
     } // method gps_cb
 
     void Ekf::odom_cb(const nav_msgs::Odometry::ConstPtr& msg){

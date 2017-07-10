@@ -7,7 +7,7 @@
 #include <nav_msgs/Odometry.h>
 #include <sensor_fusion/filter_core.h>
 #include <sensor_fusion/defs.hpp>
-// #include <tf2/transform_datatypes.h>
+#include <sensor_fusion/conversions.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2/LinearMath/Quaternion.h>
@@ -34,7 +34,9 @@ namespace Fusion{
       bool isDebugMode_;
       bool removeGravititionalAcceleration_;
       FilterCore::SensorMeasurementPtrQueue measurementPtrQueue_;
-
+      bool isGPSFirstMeasurement_;
+      double initialLatInNED_;
+      double initiallonInNED_;
     public:
 
       Ekf(ros::NodeHandle*); // Constructor
