@@ -36,7 +36,8 @@ namespace Fusion{
       FilterCore::SensorMeasurementPtrQueue measurementPtrQueue_;
       bool isGPSFirstMeasurement_;
       double initialLatInNED_;
-      double initiallonInNED_;
+      double initialLonInNED_;
+      double initialAltitude_;
     public:
 
       Ekf(ros::NodeHandle*); // Constructor
