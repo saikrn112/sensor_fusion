@@ -218,7 +218,7 @@ namespace Fusion{
       while(ros::ok() && !measurementPtrQueue_.empty()){
         measurementPtr = measurementPtrQueue_.top();
         measurementPtrQueue_.pop();
-        ROS_INFO_STREAM("\nMeasurement topic:" << measurementPtr->topicName_
+        std::cout    << "\nMeasurement topic:" << measurementPtr->topicName_
                      << "\nMeasurement Time: " << measurementPtr->time_ );
         // DEBUG("measurements using for integration:" << endl
         //               << "measurement_topic: " << measurementPtr->topicName_ << endl
@@ -228,9 +228,7 @@ namespace Fusion{
           double delta = measurementPtr->time_ - filter_.getLastMeasurementTime();
           ROS_INFO_STREAM("delta: " << std::setprecision(20) << delta << endl);
           filter_.predict(delta);
-          ROS_INFO_STREAM("=============================In Predict=============================");
           if(delta>=0)
-          ROS_INFO_STREAM("=============================In Update=============================");
            filter_.update(measurementPtr,ros::Time::now().toSec());
         } else {
           // Initialize the filter, but only with the values we're using
