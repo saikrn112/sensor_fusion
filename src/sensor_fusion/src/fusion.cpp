@@ -278,6 +278,8 @@ namespace Fusion{
       msg.twist.twist.angular.x = state(StateOmegaX);
       msg.twist.twist.angular.y = state(StateOmegaY);
       msg.twist.twist.angular.z = state(StateOmegaZ);
+
+      
       // ROS_INFO_STREAM("msg in getFusedState" << endl << state << endl);
       // for(int i=0; i<covariance.size(); i++){
       //   //@TODO convert the quaternion covariance to euler angles covariance.
@@ -301,7 +303,7 @@ namespace Fusion{
       XmlRpc::XmlRpcValue processNoiseCovarConfig;
       if (nhPriv_.hasParam("process_noise_covariance"))
       {
-  
+
       }
     }// method loadParams
 

@@ -95,17 +95,17 @@ namespace Fusion {
     ~EkfCore(); // Close all the files delete all the new type of pointers
 
     //Getters
-    arma::colvec& getState();
-    arma::colvec& getPredictedState();
-    arma::mat& getProcessNoiseCovariance();
-    arma::mat& getProcessMatrix();
-    arma::mat& getProcessMatrixJacobian();
-    arma::mat& getEstimateErrorCovariance();
-    bool getInitialisedStatus();
-    double getLastFilterTime();
-    double getLastMeasurementTime();
-    double getLastUpdateTime();
-    bool getDebugStatus();
+    const arma::colvec& getState() const;
+    const arma::colvec& getPredictedState() const;
+    const arma::mat& getProcessNoiseCovariance() const;
+    const arma::mat& getProcessMatrix() const ;
+    const arma::mat& getProcessMatrixJacobian() const;
+    const arma::mat& getEstimateErrorCovariance() const ;
+    bool getInitialisedStatus() const;
+    double getLastFilterTime() const;
+    double getLastMeasurementTime() const;
+    double getLastUpdateTime() const;
+    bool getDebugStatus() const;
 
     //Setters
     void setState(const arma::colvec&);
