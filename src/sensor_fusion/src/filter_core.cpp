@@ -68,43 +68,43 @@ namespace Fusion{
 
   } // Destructor
 
-  arma::colvec& EkfCore::getState(){
+  const arma::colvec& EkfCore::getState() const{
       return state_;
   }// method getState
 
-  arma::colvec& EkfCore::getPredictedState(){
+  const arma::colvec& EkfCore::getPredictedState() const{
     return predictedState_;
   }// method getPredictedState
 
-  arma::mat& EkfCore::getProcessNoiseCovariance(){
+  const arma::mat& EkfCore::getProcessNoiseCovariance() const{
     return processNoiseCovariance_;
   }// method getProcessNoiseCovariance
 
-  arma::mat& EkfCore::getProcessMatrix(){
+  const arma::mat& EkfCore::getProcessMatrix() const{
     return processMatrix_;
   }// method getProcessMatrix
 
-  arma::mat& EkfCore::getProcessMatrixJacobian(){
+  const arma::mat& EkfCore::getProcessMatrixJacobian() const{
     return processMatrixJacobian_;
   }// method getProcessMatrixJacobian
 
-  arma::mat& EkfCore::getEstimateErrorCovariance(){
+  const arma::mat& EkfCore::getEstimateErrorCovariance() const{
     return estimateErrorCovariance_;
   }// method getEstimateErrorCovariance
 
-  bool EkfCore::getInitialisedStatus(){
+  bool EkfCore::getInitialisedStatus() const{
     return isInitialised_;
   }// method getInitialisedStatus
 
-  double EkfCore::getLastFilterTime(){
+  double EkfCore::getLastFilterTime() const{
     return lastFilterTime_;
   } // method getLastFilterTime
 
-  double EkfCore::getLastMeasurementTime(){
+  double EkfCore::getLastMeasurementTime() const{
     return lastMeasurementTime_;
   }// method getLastMeasurementTime
 
-  bool EkfCore::getDebugStatus(){
+  bool EkfCore::getDebugStatus() const{
     return isDebugMode_;
   }// method getDebugStatus
 
