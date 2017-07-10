@@ -19,8 +19,8 @@
 - [x] check combination of both odom and SINS
 
 ## YetToDo
-- [ ] converting GPS lat/long to NED positions using the library that was used in Team Abhiyaan
-- [ ] check the error accumulation (characterise!!) with robot localisation
+- [x] converting GPS lat/long to NED positions using the library that was used in Team Abhiyaan
+- [x] check the error accumulation (characterise!!) with robot localisation
 - [ ] check the scan matching with this code
 - [ ] collect the bag files of the real sensor data with GPS, IMU and laser Scan
   1. [ ] Accelerations
