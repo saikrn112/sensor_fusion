@@ -219,7 +219,7 @@ namespace Fusion{
         measurementPtr = measurementPtrQueue_.top();
         measurementPtrQueue_.pop();
         std::cout    << "\nMeasurement topic:" << measurementPtr->topicName_
-                     << "\nMeasurement Time: " << measurementPtr->time_ );
+                     << "\nMeasurement Time: " << measurementPtr->time_ ;
         // DEBUG("measurements using for integration:" << endl
         //               << "measurement_topic: " << measurementPtr->topicName_ << endl
         //               <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
