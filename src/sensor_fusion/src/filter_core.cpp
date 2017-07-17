@@ -193,8 +193,8 @@ namespace Fusion{
 
     // Rotation matrix components
     double r11 = q0*q0 + q1*q1 - q2*q2 - q3*q3; // X-X velocity component
-    double r22 = q0*q0 + q1*q1 - q2*q2 - q3*q3; // Y-Y velocity component
-    double r33 = q0*q0 + q1*q1 - q2*q2 - q3*q3; // Z-Z velocity component
+    double r22 = q0*q0 + q2*q2 - q1*q1 - q3*q3; // Y-Y velocity component
+    double r33 = q0*q0 + q3*q3 - q2*q2 - q1*q1; // Z-Z velocity component
     double r12 = 2*(q1*q2 - q3*q0); // X-Y velocity component
     double r21 = 2*(q1*q2 + q3*q0); // Y-X velocity component
     double r13 = 2*(q1*q3 + q2*q0); // X-Z velocity component
