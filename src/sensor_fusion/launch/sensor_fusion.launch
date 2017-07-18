@@ -3,8 +3,8 @@
   <node pkg="rosbag" type="play" name="bagfileplayer" args= "--clock /home/honeywell/fusion/bagfiles/fullOdom.bag"/>
   <rosparam command="load" file="$(find sensor_fusion)/config/fusion.yaml" />
   <node pkg="sensor_fusion" type="sensor_fusion_node" name="sensor_fusion" clear_params="true" output="screen" >
-    <remap from="/odometry/filtered" to="/husky_velocity_controller/osdom"/>
-    <!-- <remap from="/navsat/fix" to="/fix"/> -->
+    <remap from="/odometry/filtered" to="/husky_velocity_controller/odosm"/>
+    <remap from="/navsat/fix" to="/fix"/>
     <!-- <remap from="/imu/data" to="/imu"/> -->
   </node>
   <!-- <node pkg="rviz" type="rviz" name="rviz"/> -->

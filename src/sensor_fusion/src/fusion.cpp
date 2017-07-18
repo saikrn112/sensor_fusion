@@ -61,10 +61,10 @@ namespace Fusion{
 
       arma::colvec measurement(STATE_SIZE);
       measurement.zeros();
-      // measurement(StateQuaternion0) = msg->orientation.x; // @TODO make sure that q0 is scalar
-      // measurement(StateQuaternion1) = msg->orientation.y;
-      // measurement(StateQuaternion2) = msg->orientation.z;
-      // measurement(StateQuaternion3) = msg->orientation.w;
+      measurement(StateQuaternion0) = msg->orientation.x; // @TODO make sure that q0 is scalar
+      measurement(StateQuaternion1) = msg->orientation.y;
+      measurement(StateQuaternion2) = msg->orientation.z;
+      measurement(StateQuaternion3) = msg->orientation.w;
       measurement(StateAcclerationX) = msg->linear_acceleration.x;
       measurement(StateAcclerationY) = msg->linear_acceleration.y;
       measurement(StateAcclerationZ) = msg->linear_acceleration.z;
