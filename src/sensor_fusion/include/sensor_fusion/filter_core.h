@@ -38,23 +38,6 @@ namespace Fusion {
     typedef boost::shared_ptr<SensorMeasurement> SensorMeasurementPtr;
     typedef std::priority_queue<SensorMeasurementPtr,std::vector<SensorMeasurementPtr>,SensorMeasurement> SensorMeasurementPtrQueue;
 
-    struct FusedState{
-      arma::colvec state_;
-      arma::mat estimateErrorCovariance_;
-      double lastMeasurementTime_;
-      bool operator()(const FusedState &a, const FusedState &b){
-        return a.lastMeasurementTime_<b.lastMeasurementTime_;
-      }
-      FusedState():
-      state_(),
-      estimateErrorCovariance_(),
-      lastMeasurementTime_(0.0){
-
-      }
-    };
-    typedef boost::shared_ptr<FusedState> FusedStatePtr;
-
-
   /** Extended Kalman Filter Equations
   *** Formulation (This formulation is with Additive Noise formulation)
   * x_k = f(x_k-1,u_k-1,w_k-1)
