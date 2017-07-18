@@ -34,7 +34,7 @@ namespace Fusion{
     } // Constructor
 
     void Ekf::imu_cb(const sensor_msgs::Imu::ConstPtr& msg){
-      ROS_INFO("in Imu call back");
+      // ROS_INFO("in Imu call back");
       // //@TODO convert 3x3 covariance to 4x4 covariance. Temporarily filling it with identity
       // //@TODO confirm that all the covariance matrices are just diagonal matrix;
       // //@TODO if they are just constants why not just hard code or parameterise them instead of reading from msgs;
@@ -61,10 +61,10 @@ namespace Fusion{
 
       arma::colvec measurement(STATE_SIZE);
       measurement.zeros();
-      measurement(StateQuaternion0) = msg->orientation.x; // @TODO make sure that q0 is scalar
-      measurement(StateQuaternion1) = msg->orientation.y;
-      measurement(StateQuaternion2) = msg->orientation.z;
-      measurement(StateQuaternion3) = msg->orientation.w;
+      // measurement(StateQuaternion0) = msg->orientation.x; // @TODO make sure that q0 is scalar
+      // measurement(StateQuaternion1) = msg->orientation.y;
+      // measurement(StateQuaternion2) = msg->orientation.z;
+      // measurement(StateQuaternion3) = msg->orientation.w;
       measurement(StateAcclerationX) = msg->linear_acceleration.x;
       measurement(StateAcclerationY) = msg->linear_acceleration.y;
       measurement(StateAcclerationZ) = msg->linear_acceleration.z;
@@ -118,7 +118,7 @@ namespace Fusion{
     } // method imu_cb
 
     void Ekf::gps_cb(const sensor_msgs::NavSatFix::ConstPtr& msg){
-      ROS_INFO("in gps call back");
+      // ROS_INFO("in gps call back");
       std::string zone;
       double initlonN, initlatE=0;
       if(!isGPSFirstMeasurement_){
@@ -142,7 +142,7 @@ namespace Fusion{
       for(int i=0; i<POSITION_SIZE; i++){
         positionCovariance(i,i) = msg-> position_covariance[i*POSITION_SIZE +i];
       }
-
+      ROS_INFO_STREAM("\n" << setprecision(10) <<gpsX);// << "," << gpsY << "," << gpsZ << endl);
       arma::colvec measurement(STATE_SIZE);
       measurement.zeros();
       measurement(StatePositionX) = gpsX;
