@@ -3,10 +3,12 @@
 
 /* Contains ROS nodehandlers and other essential methods*/
 #include <ros/ros.h>
+
 /* ROS message header files */
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <nav_msgs/Odometry.h>
+
 /* Sensor_fusion header files */
 #include <sensor_fusion/filter_core.h>
 #include <sensor_fusion/defs.hpp>
@@ -84,7 +86,7 @@ namespace Fusion{
       // Parameter for remove Acceleration due to gravity. Accordingly it rotates and removes gravity from measurement
       bool removeGravititionalAcceleration_;
 
-      // @TODO need to check
+      // This member is used to load initial Latitude, Longitude and altitude. which can be used to translation
       bool isGPSFirstMeasurement_;
 
       // Stores initial latitude for placing coordinate system at initial location
@@ -98,22 +100,30 @@ namespace Fusion{
 
     public:
       // Constructor
+      /** This constructor takes the node Handle and registers IMU, GPS and Odom Callback with rosmaster
+       *  This constructor will also load params using method loadParams()
+       *  Initialises the filter LastMeasurementTime, LastFilter time and state vector
+       *  Integrates sensor measurements using method integrateSensorMeasurements()
+       *  Gets the fused state from filter using getFusedState() and publishes it under /odomCombined topic
+       */
       Ekf(ros::NodeHandle*);
 
       //Destructor
       ~Ekf();
 
       // Method for adding measurements from sensors into the priority queue container.
+      // This simply pushes the measurment pointers into measurementPtrQueue_ member
       void addMeasurementinQueue(const FilterCore::SensorMeasurementPtr&);
 
-      // This function job is to initialise the filter with mentionend covariances
-      // and also check for the initial measurements
-      void initialize(void);
-
+      // Loads parmeters from parameter server.
       void loadParams(void);
+
+      // gets Fused State from filter_ and loads it into nav_msgs::Odometry&
       void getFusedState( nav_msgs::Odometry& ) const;
 
       // This function should integrate the measurements
+      // Initialises the filter state and covariance with one measurement
+      // takes care of asequent observations and does prediction and Update step
       void integrateSensorMeasurements(void);
     };
 
