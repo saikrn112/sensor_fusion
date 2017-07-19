@@ -23,7 +23,7 @@ namespace Fusion{
       arma::colvec state(STATE_SIZE);
       state.zeros();
       filter_.setState(state);
-      ros::Rate rate(50);
+      ros::Rate rate(70);
       while(ros::ok()){
         integrateSensorMeasurements();
         getFusedState(fusedState);
@@ -277,9 +277,12 @@ namespace Fusion{
         if(filter_.getInitialisedStatus()){
           double delta = measurementPtr->time_ - filter_.getLastMeasurementTime();
           // ROS_INFO_STREAM("delta: " << std::setprecision(20) << delta << endl);
-          filter_.predict(delta);
-          if(delta>=0)
-           filter_.update(measurementPtr,ros::Time::now().toSec());
+
+          if(delta>0){ // Do not entertain delayed or out of sequence measurements
+            filter_.predict(delta);
+            filter_.update(measurementPtr,ros::Time::now().toSec());
+          }
+
         } else {
           // Initialize the filter, but only with the values we're using
           DEBUG("=============================Initialising Filter=============================\n");
@@ -353,7 +356,6 @@ namespace Fusion{
     } // getFusedState
     void Ekf::loadParams(){
 
-      nhPriv_.param("a",placeHolder_);
       nhPriv_.param("debug_mode",isDebugMode_,false);
       nhPriv_.param("remove_gravity",removeGravititionalAcceleration_,true);
       filter_.setDebugStatus(isDebugMode_);

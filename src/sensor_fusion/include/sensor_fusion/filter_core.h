@@ -47,22 +47,26 @@ namespace Fusion {
   namespace FilterCore{
 
     /** DataStructure for storing measurements
-     * topicName_    : stores the name of the topic for identifying the sensor
-     * time_         : Stores time of the measurment
-     * measurment_   : armadillo based column vector for storing measurements
-     * updateVector_ : contains list of measurments which the callback has updated. Useful for constructing Measurement Matrices
-     * covariance_   : armadillo based matrix for storing covariances of that particular measurement
-     * operator ()   : overloads operator for comparing two measurments based on their time of arrival
      */
     struct SensorMeasurement{
       // Members of the structure
+      // topicName_ : stores the name of the topic for identifying the sensor
       std::string topicName_;
+
+      // time_ : Stores time of the measurment
       double time_;
+
+      // measurment_ : armadillo based column vector for storing measurements
       arma::colvec measurement_;
+
+      // updateVector_ : contains list of measurments which the callback has updated. Useful for constructing Measurement Matrices
       std::vector<int> updateVector_;
+
+      // covariance_   : armadillo based matrix for storing covariances of that particular measurement
       arma::mat covariance_;
 
       // Operator Overload
+      // operator ()   : overloads operator for comparing two measurments based on their time of arrival
       bool operator()(const boost::shared_ptr<SensorMeasurement> &a, const boost::shared_ptr<SensorMeasurement> &b){
         return (*this)(*a.get(),*(b.get()));
       }
@@ -82,17 +86,30 @@ namespace Fusion {
     typedef boost::shared_ptr<SensorMeasurement> SensorMeasurementPtr;
     typedef std::priority_queue<SensorMeasurementPtr,std::vector<SensorMeasurementPtr>,SensorMeasurement> SensorMeasurementPtrQueue;
 
-
+    /** This class contains the core logic methods and members required for that
+     */
     class EkfCore {
     private:
+      // Private Members
+      // state_ : Stores the state of the filter_
       arma::colvec state_;
+
+      // state_ : Stores the state of the filter_
       arma::colvec predictedState_;
+
+      // processMatrix_ : Stores the processMatrix_ (f) from Kalman Filter
       arma::mat processMatrix_;              // f
 
+      // processMatrixJacobian_ : Stores the Jacobian of processMatrix_ that is used to compute the Kalman Gain
       arma::mat processMatrixJacobian_;      // F
+
+      // estimateErrorCovariance_ : Contains process Modelling noise
       arma::mat estimateErrorCovariance_;    // P
+
+      // processNoiseCovariance_ : Stores the modelling noise covariance (Assumed to be constant Matrix)
       arma::mat processNoiseCovariance_;     // Q
-      arma::mat covarianceEpsilon_;
+
+      // Identity matrix which will be useful for calculations
       arma::mat identity_;
 
       /* Parameter declarations */
