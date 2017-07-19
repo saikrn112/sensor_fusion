@@ -18,6 +18,18 @@
 - [x] check normal odom data from husky simulator
 - [x] check combination of both odom and SINS
 
+## Very urgent
+- [ ] complete documentation literature
+- [ ] complete comments
+- [ ] collect the bagfiles of IMU alone
+- [ ] write code for moving the robot in a big circle.
+- [ ] collect the bagfiles of that expirement
+- [ ] simulate GPS loss for 10 seconds using dynamic parameter or using ROS time or we can use parameter to control ROS timer
+- [ ] collect the bagfiles of the same
+- [ ] collect bagfiles of husky odom for truth!!
+- [ ] convert bagfiles to csv files
+- [ ] plot the graphs from the csv files. Pain Sahfeeq!!!!!!
+
 ## YetToDo
 - [x] converting GPS lat/long to NED positions using the library that was used in Team Abhiyaan
 - [x] check the error accumulation (characterise!!) with robot localisation
