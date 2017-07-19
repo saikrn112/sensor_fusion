@@ -2,8 +2,8 @@
 #include "sensor_fusion/filter_core.h"
 
 using namespace std;
-using namespace arma;
 
+// Overloading operator for printing vectors
 std::ostream &operator<<(std::ostream &output, const std::vector<int>& msg){
   int vecSize = msg.size();
   output << "[";
