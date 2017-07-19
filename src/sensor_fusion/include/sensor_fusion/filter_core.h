@@ -1,13 +1,18 @@
 #ifndef Filter_CORE_H
 #define FILTER_CORE_H
 
-#include <armadillo>
-#include <cmath>
-#include <boost/shared_ptr.hpp>
+/* Header file for input and output streams */
 #include <iostream>
+
+/* STL vector for storing elements */
 #include <vector>
+
+/* STL queue for priority queue container */
 #include <queue>
+/**/
 #include <iomanip>
+#include <boost/shared_ptr.hpp>
+#include <armadillo>
 #define DEBUG(msg) if (isDebugMode_) { std::cout << msg; }
 // basic methods which will help in debugging
 // output vector<int> for matrix and colvec use .print() method
