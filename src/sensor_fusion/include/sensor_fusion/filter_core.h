@@ -46,112 +46,160 @@ namespace Fusion {
    */
   namespace FilterCore{
 
-    /** DataStructure for storing measurements
-     */
-    struct SensorMeasurement{
-      // Members of the structure
-      // topicName_ : stores the name of the topic for identifying the sensor
-      std::string topicName_;
+    /** Data Structure SensorMeasurment
+     * topicName_    : stores the name of the topic for identifying the sensor
+     * time_         : Stores time of the measurment
+     * measurment_   : armadillo based column vector for storing measurements
+     * updateVector_ : contains list of measurments which the callback has updated. Useful for constructing Measurement Matrices
+     * covariance_   : armadillo based matrix for storing covariances of that particular measurement
+     * operator ()   : overloads operator for comparing two measurments based on their time of arrival
+     */
+ struct SensorMeasurement{
+      // Members of the structure
+      std::string topicName_;
+      double time_;
+      arma::colvec measurement_;
+      std::vector<int> updateVector_;
+      arma::mat covariance_;
+ 
+      // Operator Overload
+      bool operator()(const boost::shared_ptr<SensorMeasurement> &a, const boost::shared_ptr<SensorMeasurement> &b){
+        return (*this)(*a.get(),*(b.get()));
+      }
+      bool operator()(const SensorMeasurement &a, const SensorMeasurement &b){
+        return a.time_>b.time_;
+      }
+ 
+      // Constructor
+      SensorMeasurement():
+      topicName_(""),
+      time_(0.0)
+      {
+      }
+    };
 
-      // time_ : Stores time of the measurment
-      double time_;
-
-      // measurment_ : armadillo based column vector for storing measurements
-      arma::colvec measurement_;
-
-      // updateVector_ : contains list of measurments which the callback has updated. Useful for constructing Measurement Matrices
-      std::vector<int> updateVector_;
-
-      // covariance_   : armadillo based matrix for storing covariances of that particular measurement
-      arma::mat covariance_;
-
-      // Operator Overload
-      // operator ()   : overloads operator for comparing two measurments based on their time of arrival
-      bool operator()(const boost::shared_ptr<SensorMeasurement> &a, const boost::shared_ptr<SensorMeasurement> &b){
-        return (*this)(*a.get(),*(b.get()));
-      }
-      bool operator()(const SensorMeasurement &a, const SensorMeasurement &b){
-        return a.time_>b.time_;
-      }
-
-      // Constructor
-      SensorMeasurement():
-      topicName_(""),
-      time_(0.0)
-      {
-
-      }
-    };
     // Typedef the pointers and priority queue based Sensor measurement for readability
     typedef boost::shared_ptr<SensorMeasurement> SensorMeasurementPtr;
     typedef std::priority_queue<SensorMeasurementPtr,std::vector<SensorMeasurementPtr>,SensorMeasurement> SensorMeasurementPtrQueue;
 
-    /** This class contains the core logic methods and members required for that
+
+	/** This class contains the core logic methods and members required for that
      */
     class EkfCore {
     private:
-      // Private Members
-      // state_ : Stores the state of the filter_
-      arma::colvec state_;
 
-      // state_ : Stores the state of the filter_
+      // Member: Stores the state of the filter_
+      arma::colvec state_;
+      // Member: Stores the state of the filter_
       arma::colvec predictedState_;
 
-      // processMatrix_ : Stores the processMatrix_ (f) from Kalman Filter
+      // Member: Stores the processMatrix_ (f) from Kalman Filter
       arma::mat processMatrix_;              // f
 
-      // processMatrixJacobian_ : Stores the Jacobian of processMatrix_ that is used to compute the Kalman Gain
+      // Member: Stores the Jacobian of processMatrix_ that is used to compute the Kalman Gain
       arma::mat processMatrixJacobian_;      // F
 
-      // estimateErrorCovariance_ : Contains process Modelling noise
+      // Member: Contains process Modelling noise
       arma::mat estimateErrorCovariance_;    // P
 
-      // processNoiseCovariance_ : Stores the modelling noise covariance (Assumed to be constant Matrix)
+      // Member: Stores the modelling noise covariance (Assumed to be constant Matrix)
       arma::mat processNoiseCovariance_;     // Q
 
-      // Identity matrix which will be useful for calculations
+      // Member: Identity matrix which will be useful for calculations
       arma::mat identity_;
 
-      /* Parameter declarations */
-      double lastFilterTime_;
+   	  // Parameter: last measurment time used to calculate delta
       double lastMeasurementTime_;
+
+	   // Parameter: last Update time to keep track update process
       double lastUpdateTime_;
+
+      // Parameter: To check if the filter state and covariance is initialised or not
       bool isInitialised_;
+
+      // Parameter: variable to check debug mode. If true prints debug statements, vectors, matrices. Note: LOT OF OUTPUT
       bool isDebugMode_;
 
     public:
-      EkfCore(); // all the inital parmeters will be updated as the equations are written
-      ~EkfCore(); // Close all the files delete all the new type of pointers
 
-      //Getters
+	    // Constructer: Initialises the Memebers to default values and also initialises process Noise covariance matrix
+      EkfCore();
+
+	    // Destructor
+      ~EkfCore();
+
+	    // Getter: gets the current State vector
       const arma::colvec& getState() const;
+
+	    // Getter: gets the predicted state vector
       const arma::colvec& getPredictedState() const;
+
+	    // Getter: gets the Process Noise covariance matrix
       const arma::mat& getProcessNoiseCovariance() const;
+
+	    // Getter: gets the Process matrix
       const arma::mat& getProcessMatrix() const ;
+
+	    // Getter: gets the Process Matrix Jacobian matrix
       const arma::mat& getProcessMatrixJacobian() const;
+
+	    // Getter: gets the estimate error covariance matrix
       const arma::mat& getEstimateErrorCovariance() const ;
+
+	    // Getter: gets the initialised status of the filter
       bool getInitialisedStatus() const;
+
+	    // Getter: gets the Last Filter time of the filter
       double getLastFilterTime() const;
+
+	    // Getter: gets the Last Measurement time of the filter
       double getLastMeasurementTime() const;
+
+	    // Getter: gets the Last Update Time of the filter
       double getLastUpdateTime() const;
+
+	    // Getter: gets the debug status of the filter
       bool getDebugStatus() const;
 
-      //Setters
+	    // Setter: sets the state of the filter. Useful for manual setting
       void setState(const arma::colvec&);
-      void setProcessMatrix(const arma::mat&);
-      void setProcessMatrixJacobian(const arma::mat&);
-      void setEstimateErrorCovariance(const arma::mat&);
-      void setProcessNoiseCovariance(const arma::mat&);
-      void setInitialisedStatus(const bool);
-      void setLastFilterTime(const double);
-      void setLastMeasurementTime(const double);
-      void setLastUpdateTime(const double);
-      void setDebugStatus(const bool);
 
-      // Core functions of the Filter
+	    // Setter: sets the process Matrix
+      void setProcessMatrix(const arma::mat&);
+
+	    // Setter: sets the process Matrix Jacobian
+      void setProcessMatrixJacobian(const arma::mat&);
+
+	    // Setter: sets the Estimate error Covariance
+      void setEstimateErrorCovariance(const arma::mat&);
+
+	    // Setter: sets the process Noise covariance matrix
+      void setProcessNoiseCovariance(const arma::mat&);
+
+	    // Setter: sets initialisation status of the filter
+      void setInitialisedStatus(const bool);
+
+	    // Setter: sets the last Filter time after prediction and update. This should be equal to last update time,
+      //         but delayed measurements can cause problems
+      void setLastFilterTime(const double);
+
+	    // Setter: sets the last Measurement time. will be useful for delta calculation
+      void setLastMeasurementTime(const double);
+
+	    // Setter: sets the last update time of the filter
+      void setLastUpdateTime(const double);
+
+	    // Setter: sets the debug status using parameter server
+      void setDebugStatus(const bool);
+   	  // Method: normalises the quaternion to keep it within limits, This is equivalent to wrapping angles between -180 to 180 degrees
+	    //         but in much more safer way avoiding singularities
       void quatNormalize(void);
-      void predict (const double );
-      void update (const SensorMeasurementPtr&, const double);
+
+	    // Method: performs the prediction step till current filter time + delta
+      void predict (const double delta);
+
+	    // Method: Updates the current state estimate using the measurment and sets the current filter time
+      void update (const SensorMeasurementPtr&, const double currTime);
 
     }; // End of Class EkfCore
   } // End of Namespace FilterCore
