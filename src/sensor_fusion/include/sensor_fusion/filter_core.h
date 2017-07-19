@@ -20,6 +20,7 @@
 #include <vector>
 
 /* STL queue for priority queue container */
+// [refer: http://en.cppreference.com/w/cpp/container/priority_queue]
 #include <queue>
 
 /* Header file for setprecision in streams */
@@ -72,7 +73,9 @@ namespace Fusion {
       // Constructor
       SensorMeasurement():
       topicName_(""),
-      time_(0.0){
+      time_(0.0)
+      {
+
       }
     };
     // Typedef the pointers and priority queue based Sensor measurement for readability
@@ -80,61 +83,60 @@ namespace Fusion {
     typedef std::priority_queue<SensorMeasurementPtr,std::vector<SensorMeasurementPtr>,SensorMeasurement> SensorMeasurementPtrQueue;
 
 
-  class EkfCore {
-  private:
-    arma::colvec state_;
-    arma::colvec predictedState_;
-    arma::mat processMatrix_;              // f
+    class EkfCore {
+    private:
+      arma::colvec state_;
+      arma::colvec predictedState_;
+      arma::mat processMatrix_;              // f
 
-    arma::mat processMatrixJacobian_;      // F
-    arma::mat estimateErrorCovariance_;    // P
-    arma::mat processNoiseCovariance_;     // Q
-    arma::mat covarianceEpsilon_;
-    arma::mat identity_;
+      arma::mat processMatrixJacobian_;      // F
+      arma::mat estimateErrorCovariance_;    // P
+      arma::mat processNoiseCovariance_;     // Q
+      arma::mat covarianceEpsilon_;
+      arma::mat identity_;
 
-    /* Parameter declarations */
-    double lastFilterTime_;
-    double lastMeasurementTime_;
-    double lastUpdateTime_;
-    bool isInitialised_;
-    bool isDebugMode_;
+      /* Parameter declarations */
+      double lastFilterTime_;
+      double lastMeasurementTime_;
+      double lastUpdateTime_;
+      bool isInitialised_;
+      bool isDebugMode_;
 
-  public:
-    EkfCore(); // all the inital parmeters will be updated as the equations are written
-    ~EkfCore(); // Close all the files delete all the new type of pointers
+    public:
+      EkfCore(); // all the inital parmeters will be updated as the equations are written
+      ~EkfCore(); // Close all the files delete all the new type of pointers
 
-    //Getters
-    const arma::colvec& getState() const;
-    const arma::colvec& getPredictedState() const;
-    const arma::mat& getProcessNoiseCovariance() const;
-    const arma::mat& getProcessMatrix() const ;
-    const arma::mat& getProcessMatrixJacobian() const;
-    const arma::mat& getEstimateErrorCovariance() const ;
-    bool getInitialisedStatus() const;
-    double getLastFilterTime() const;
-    double getLastMeasurementTime() const;
-    double getLastUpdateTime() const;
-    bool getDebugStatus() const;
+      //Getters
+      const arma::colvec& getState() const;
+      const arma::colvec& getPredictedState() const;
+      const arma::mat& getProcessNoiseCovariance() const;
+      const arma::mat& getProcessMatrix() const ;
+      const arma::mat& getProcessMatrixJacobian() const;
+      const arma::mat& getEstimateErrorCovariance() const ;
+      bool getInitialisedStatus() const;
+      double getLastFilterTime() const;
+      double getLastMeasurementTime() const;
+      double getLastUpdateTime() const;
+      bool getDebugStatus() const;
 
-    //Setters
-    void setState(const arma::colvec&);
-    void setProcessMatrix(const arma::mat&);
-    void setProcessMatrixJacobian(const arma::mat&);
-    void setEstimateErrorCovariance(const arma::mat&);
-    void setProcessNoiseCovariance(const arma::mat&);
-    void setInitialisedStatus(const bool);
-    void setLastFilterTime(const double);
-    void setLastMeasurementTime(const double);
-    void setLastUpdateTime(const double);
-    void setDebugStatus(const bool);
+      //Setters
+      void setState(const arma::colvec&);
+      void setProcessMatrix(const arma::mat&);
+      void setProcessMatrixJacobian(const arma::mat&);
+      void setEstimateErrorCovariance(const arma::mat&);
+      void setProcessNoiseCovariance(const arma::mat&);
+      void setInitialisedStatus(const bool);
+      void setLastFilterTime(const double);
+      void setLastMeasurementTime(const double);
+      void setLastUpdateTime(const double);
+      void setDebugStatus(const bool);
 
-    // Core functions of the Filter
-    void quatNormalize(void);
-    void predict (const double );
-    void update (const SensorMeasurementPtr&, const double);
+      // Core functions of the Filter
+      void quatNormalize(void);
+      void predict (const double );
+      void update (const SensorMeasurementPtr&, const double);
 
-  }; // End of Class EkfCore
-
-} // End of Namespace FilterCore
+    }; // End of Class EkfCore
+  } // End of Namespace FilterCore
 } // End of Namespace Fusion
 #endif
