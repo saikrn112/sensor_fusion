@@ -25,7 +25,6 @@ namespace Fusion{
   processMatrixJacobian_(STATE_SIZE,STATE_SIZE),
   estimateErrorCovariance_(STATE_SIZE,STATE_SIZE),
   processNoiseCovariance_(STATE_SIZE,STATE_SIZE),
-  covarianceEpsilon_(STATE_SIZE,STATE_SIZE),
   identity_(STATE_SIZE,STATE_SIZE),
   lastFilterTime_(0.0),
   lastMeasurementTime_(0.0),
@@ -39,8 +38,6 @@ namespace Fusion{
     estimateErrorCovariance_*=1e-9;
     processNoiseCovariance_.eye();
     processNoiseCovariance_*=1e-9;
-    covarianceEpsilon_.eye();
-    covarianceEpsilon_*=1e-9;
     identity_.eye();
 
     processNoiseCovariance_(StatePositionX, StatePositionX) = 0.05;
