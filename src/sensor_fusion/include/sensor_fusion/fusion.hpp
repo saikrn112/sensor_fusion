@@ -25,6 +25,10 @@
 /* Armadillo Linear Algebra Library [refer: http://arma.sourceforge.net/docs.html ]*/
 #include <armadillo>
 
+
+#include <dynamic_reconfigure/server.h>
+#include <sensor_fusion/fusionConfig.h>
+
 /* Start of Fusion Namespace */
 namespace Fusion{
   /* ROSIntegration namespace contains methods only related to ROS Subscribers, Publisher and Call backs*/
@@ -62,6 +66,13 @@ namespace Fusion{
        * Sets the Measurement values and their covariances and finally sends the pointer to addMeasurementinQueue
        */
       void odom_cb(const nav_msgs::Odometry::ConstPtr& );
+
+      /** Parameter Callback
+       *  used to reconfigure the gps topic dynamically
+       *  Parameter- fusionConfig - takes the configuration file defined previously
+       *  Parameter - unint23_t is defined for level
+       */
+      void parameter_cb(sensor_fusion::fusionConfig& , uint32_t );
 
       // Subscribers and Publisher objects
       ros::Subscriber imuSub, odomSub, gpsSub;

@@ -45,6 +45,13 @@ namespace Fusion{
         // Publish it in given topic name
         pub.publish(fusedState);
 
+        // Dynamic reconfigure
+        dynamic_reconfigure::Server<sensor_fusion::fusionConfig> server;
+        dynamic_reconfigure::Server<sensor_fusion::fusionConfig>::CallbackType f;
+
+        f = boost::bind(&Ekf::parameter_cb, _1, _2);
+        server.setCallback(f);
+
         // To publish at specified frequency
         rate.sleep();
 
@@ -279,6 +286,12 @@ namespace Fusion{
       addMeasurementinQueue(measurementPtr);
 
     } // method odom_cb
+
+    // method for changing gps subscription on or off
+    void Ekf::parameter_cb(sensor_fusion::fusionConfig &config, uint32_t level) {
+      ROS_INFO("Reconfigure Request:%s ",
+            config.gps?"True":"False");
+    } // method parameter_cb
 
     // Method for adding measurements into the queue
     void Ekf::addMeasurementinQueue(const FilterCore::SensorMeasurementPtr& measurementPtr){

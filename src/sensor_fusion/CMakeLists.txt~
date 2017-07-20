@@ -12,18 +12,11 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   roscpp
   sensor_msgs
-  dynamic_reconfigure
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
-
-#add dynamic reconfigure api
-#find_package(catkin REQUIRED dynamic_reconfigure)
-generate_dynamic_reconfigure_options(
-  cfg/fusion.cfg
-)
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -39,7 +32,6 @@ catkin_package(
   CATKIN_DEPENDS nav_msgs roscpp sensor_msgs
 #  DEPENDS system_lib
 )
-
 
 ###########
 ## Build ##
@@ -57,8 +49,6 @@ include_directories(include
 #   src/${PROJECT_NAME}/sensor_fusion.cpp
 # )
 
-
-
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -66,8 +56,6 @@ include_directories(include
 
 ## Declare a C++ executable
 add_executable(sensor_fusion_node src/fusion_node.cpp src/fusion.cpp src/filter_core.cpp)
-
-
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
