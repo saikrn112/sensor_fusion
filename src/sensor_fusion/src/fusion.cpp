@@ -6,59 +6,84 @@ using namespace arma;
 namespace Fusion{
   namespace RosIntegration{
 
+    // Class Ekf
     Ekf::Ekf(ros::NodeHandle* nodeHandle):
     nh_(*nodeHandle),
     nhPriv_("~"),
     isGPSFirstMeasurement_(false){
       ROS_INFO("Got the Node Handle. Initialising IMU, GPS and Odometry Callback");
+
+      // Initialising the subscribers
       imuSub = nh_.subscribe("/imu/data",1,&Ekf::imu_cb,this);
       gpsSub = nh_.subscribe("/navsat/fix",1,&Ekf::gps_cb,this);
       odomSub = nh_.subscribe("/odometry/filtered",1,&Ekf::odom_cb,this);
 
+      // Initialising the publi
       pub = nh_.advertise<nav_msgs::Odometry>("/odomCombined",1,true);
       Ekf::loadParams();
-      nav_msgs::Odometry fusedState;
+
+      // Setting filter initial values
       filter_.setLastMeasurementTime(ros::Time::now().toSec());
       filter_.setLastFilterTime(ros::Time::now().toSec());
       arma::colvec state(STATE_SIZE);
       state.zeros();
       filter_.setState(state);
-      ros::Rate rate(70);
+
+
+      nav_msgs::Odometry fusedState;
+
+      // Rate at which node should publish
+      ros::Rate rate(100);
+
       while(ros::ok()){
+        // Integrate Measurments and update the state
         integrateSensorMeasurements();
+
+        // Get the current state
         getFusedState(fusedState);
+
+        // Publish it in given topic name
         pub.publish(fusedState);
+
+        // To publish at specified frequency
         rate.sleep();
+
+        // To update the sensor msgs
         ros::spinOnce();
       }
     } // Constructor
 
     void Ekf::imu_cb(const sensor_msgs::Imu::ConstPtr& msg){
       // ROS_INFO("in Imu call back");
-      // //@TODO convert 3x3 covariance to 4x4 covariance. Temporarily filling it with identity
-      // //@TODO confirm that all the covariance matrices are just diagonal matrix;
+
       // //@TODO if they are just constants why not just hard code or parameterise them instead of reading from msgs;
+      // extracting angles covariance from 1D array to 3D array
       arma::mat anglesCovariance(ANGLES_SIZE,ANGLES_SIZE);
       anglesCovariance.eye();
       anglesCovariance(0,0) = msg->orientation_covariance[0];
       anglesCovariance(1,1) = msg->orientation_covariance[4];
       anglesCovariance(2,2) = msg->orientation_covariance[8];
 
+      //quaternion covariance matrix instance
       arma::mat quaternionCovariance(QUAT_SIZE,QUAT_SIZE);
       quaternionCovariance.eye();
       // quaternionCovariance *= 1e-3;
+
+      // extracting omage covariance from an 1D array to 3D array
       arma::mat accelerationCovariance(ACCELERATION_SIZE,ACCELERATION_SIZE);
       accelerationCovariance.eye();
       accelerationCovariance(0,0) = msg->linear_acceleration_covariance[0];
       accelerationCovariance(1,1) = msg->linear_acceleration_covariance[4];
       accelerationCovariance(2,2) = msg->linear_acceleration_covariance[8];
 
+      // extracting omage covariance from an 1D array to 3D array
       arma::mat omegaCovariance(OMEGA_SIZE,OMEGA_SIZE);
       omegaCovariance.eye();
       omegaCovariance(0,0) = msg->angular_velocity_covariance[0];
       omegaCovariance(1,1) = msg->angular_velocity_covariance[4];
       omegaCovariance(2,2) = msg->angular_velocity_covariance[8];
 
+      // Filling the measurement vector with message values
       arma::colvec measurement(STATE_SIZE);
       measurement.zeros();
       measurement(StateQuaternion0) = msg->orientation.x; // @TODO make sure that q0 is scalar
@@ -71,10 +96,10 @@ namespace Fusion{
       measurement(StateOmegaX) = msg->angular_velocity.x;
       measurement(StateOmegaY) = msg->angular_velocity.y;
       measurement(StateOmegaZ) = msg->angular_velocity.z;
+
       // Preprocessing IMU data - Removing the Gravitational Acceleration. Keeping a parameter just in case
       if(removeGravititionalAcceleration_){
         tf2::Vector3 gravity(0,0,G);
-        // tf2::Quaternion q(static_cast<tf2Scalar>(measurement(StateQuaternion0)),static_cast<tf2Scalar>(measurement(StateQuaternion1)),static_cast<tf2Scalar>(measurement(StateQuaternion2)),static_cast<tf2Scalar>(measurement(StateQuaternion3)));
         tf2::Quaternion q(measurement(StateQuaternion0),measurement(StateQuaternion1),measurement(StateQuaternion2),measurement(StateQuaternion3));
         tf2::Matrix3x3 rotMat(q);
         tf2::Vector3 a = rotMat*gravity;
@@ -83,6 +108,7 @@ namespace Fusion{
         measurement(StateAcclerationZ) -= a.getZ();
       }
 
+      // update covariances with appropriate blocks
       arma::mat covariance(STATE_SIZE,STATE_SIZE);
       covariance.eye();
       covariance.submat(StateQuaternion0,StateQuaternion0,StateQuaternion3,StateQuaternion3) = quaternionCovariance;
@@ -263,9 +289,7 @@ namespace Fusion{
     } // Destructor
 
     void Ekf::integrateSensorMeasurements(){
-      // In this method we are going to integrate and predict the state
-      // for that we need to
-
+      // In this method we are going to integrate and run EKF
       FilterCore::SensorMeasurementPtr measurementPtr;
       while(ros::ok() && !measurementPtrQueue_.empty()){
         measurementPtr = measurementPtrQueue_.top();
@@ -354,8 +378,8 @@ namespace Fusion{
 
 
     } // getFusedState
-    void Ekf::loadParams(){
 
+    void Ekf::loadParams(){
       nhPriv_.param("debug_mode",isDebugMode_,false);
       nhPriv_.param("remove_gravity",removeGravititionalAcceleration_,true);
       filter_.setDebugStatus(isDebugMode_);
@@ -367,8 +391,7 @@ namespace Fusion{
       {
 
       }
+
     }// method loadParams
-
-
   }// namespace FilterCore
 }// namespace Fusion
