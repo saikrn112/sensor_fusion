@@ -19,8 +19,8 @@
 - [x] check combination of both odom and SINS
 
 ## Very urgent
-- [ ] complete documentation literature
-- [ ] complete comments
+- [x] complete documentation literature
+- [x] complete comments
 - [ ] collect the bagfiles of IMU alone
 - [ ] write code for moving the robot in a big circle.
 - [ ] collect the bagfiles of that expirement
