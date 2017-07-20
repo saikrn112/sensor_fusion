@@ -29,7 +29,10 @@
 - [ ] collect bagfiles of husky odom for truth!!
 - [ ] convert bagfiles to csv files
 - [ ] plot the graphs from the csv files. Pain Sahfeeq!!!!!!
-
+- [ ] experiments
+  1. circle - rl:with odometry, gps and IMU, fusion- imu and gps alone
+  1. straight line - fusion, IMU alone, gps alone(from rl) and gps + IMU
+  1. circle - gpsloss fusion alone 
 ## YetToDo
 - [x] converting GPS lat/long to NED positions using the library that was used in Team Abhiyaan
 - [x] check the error accumulation (characterise!!) with robot localisation
