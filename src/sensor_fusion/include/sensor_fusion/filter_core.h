@@ -45,26 +45,37 @@ namespace Fusion {
    *  This also contains a DataStructure which stores measurments from various sources
    */
   namespace FilterCore{
-struct SensorMeasurement{
-// Members of the structure
-std::string topicName_;
-double time_;
-arma::colvec measurement_;
-std::vector<int> updateVector_;
-arma::mat covariance_;
-bool operator()(const boost::shared_ptr<SensorMeasurement> &a, const boost::shared_ptr<SensorMeasurement> &b){
-return (*this)(*a.get(),*(b.get()));
-}
-bool operator()(const SensorMeasurement &a, const SensorMeasurement &b){
-return a.time_>b.time_;
-}
-// Constructor
-SensorMeasurement():
-topicName_(""),
-time_(0.0)
-{
-}
-};
+    /** Data Structure SensorMeasurment
+     * topicName_    : stores the name of the topic for identifying the sensor
+     * time_         : Stores time of the measurment
+     * measurment_   : armadillo based column vector for storing measurements
+     * updateVector_ : contains list of measurments which the callback has updated. Useful for constructing Measurement Matrices
+     * covariance_   : armadillo based matrix for storing covariances of that particular measurement
+     * operator ()   : overloads operator for comparing two measurments based on their time of arrival
+     */
+     struct SensorMeasurement{
+       // Members of the structure
+       std::string topicName_;
+       double time_;
+       arma::colvec measurement_;
+       std::vector<int> updateVector_;
+       arma::mat covariance_;
+
+       // Operator Overload
+       bool operator()(const boost::shared_ptr<SensorMeasurement> &a, const boost::shared_ptr<SensorMeasurement> &b){
+         return (*this)(*a.get(),*(b.get()));
+       }
+       bool operator()(const SensorMeasurement &a, const SensorMeasurement &b){
+         return a.time_>b.time_;
+       }
+
+       // Constructor
+       SensorMeasurement():
+       topicName_(""),
+       time_(0.0)
+       {
+       }
+    };
 
     // Typedef the pointers and priority queue based Sensor measurement for readability
     typedef boost::shared_ptr<SensorMeasurement> SensorMeasurementPtr;
