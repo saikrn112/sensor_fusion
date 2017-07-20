@@ -66,84 +66,87 @@ namespace Fusion{
 
     const arma::colvec& EkfCore::getState() const{
         return state_;
-    }// method getState
+    }// Getter getState
 
     const arma::colvec& EkfCore::getPredictedState() const{
       return predictedState_;
-    }// method getPredictedState
+    }// Getter getPredictedState
 
     const arma::mat& EkfCore::getProcessNoiseCovariance() const{
       return processNoiseCovariance_;
-    }// method getProcessNoiseCovariance
+    }// Getter getProcessNoiseCovariance
 
     const arma::mat& EkfCore::getProcessMatrix() const{
       return processMatrix_;
-    }// method getProcessMatrix
+    }// Getter getProcessMatrix
 
     const arma::mat& EkfCore::getProcessMatrixJacobian() const{
       return processMatrixJacobian_;
-    }// method getProcessMatrixJacobian
+    }// Getter getProcessMatrixJacobian
 
     const arma::mat& EkfCore::getEstimateErrorCovariance() const{
       return estimateErrorCovariance_;
-    }// method getEstimateErrorCovariance
+    }// Getter getEstimateErrorCovariance
 
     bool EkfCore::getInitialisedStatus() const{
       return isInitialised_;
-    }// method getInitialisedStatus
+    }// Getter getInitialisedStatus
 
     double EkfCore::getLastFilterTime() const{
       return lastFilterTime_;
-    } // method getLastFilterTime
+    }// Getter getLastFilterTime
 
     double EkfCore::getLastMeasurementTime() const{
       return lastMeasurementTime_;
-    }// method getLastMeasurementTime
+    }// Getter getLastMeasurementTime
 
     bool EkfCore::getDebugStatus() const{
       return isDebugMode_;
-    }// method getDebugStatus
+    }// Getter getDebugStatus
 
     void EkfCore::setState(const arma::colvec& state){
       state_ = state;
-    }// method setState
+    }// Setter setState
 
     void EkfCore::setProcessMatrix(const arma::mat& msg){
       processMatrix_ = msg;
-    }// method setProcessMatrix
+    }// Setter setProcessMatrix
 
     void EkfCore::setProcessMatrixJacobian(const arma::mat& msg){
       processMatrixJacobian_ = msg;
-    }// method setProcessMatrixJacobian
+    }// Setter setProcessMatrixJacobian
 
     void EkfCore::setEstimateErrorCovariance(const arma::mat& msg){
       estimateErrorCovariance_ = msg;
-    }// method setEstimateErrorCovariance
+    }// Setter setEstimateErrorCovariance
 
     void EkfCore::setProcessNoiseCovariance(const arma::mat& msg){
       processNoiseCovariance_ = msg;
-    }// method setProcessNoiseCovariance
+    }// Setter setProcessNoiseCovariance
 
     void EkfCore::setInitialisedStatus(bool msg){
       isInitialised_ = msg;
-    }// setInitialisedStatus
+    }// Setter setInitialisedStatus
 
     void EkfCore::setLastFilterTime(double msg){
       lastFilterTime_ = msg;
-    }// setLastFilterTime
+    }// Setter setLastFilterTime
 
     void EkfCore::setLastMeasurementTime(double msg){
       lastMeasurementTime_ = msg;
-    }// setLastMeasurementTime
+    }// Setter setLastMeasurementTime
 
     void EkfCore::setLastUpdateTime(double msg){
       lastUpdateTime_ = msg;
-    }// setLastUpdateTime
+    }// Setter setLastUpdateTime
 
     void EkfCore::setDebugStatus(bool msg){
       isDebugMode_ = msg;
-    }// setDebugStatus
+    }// Setter setDebugStatus
 
+    /** Definition of quatNormalize
+     *  for normalising the quaternion to keep its norm unit
+     */
     void EkfCore::quatNormalize(){
       double q0 = state_(StateQuaternion0);
       double q1 = state_(StateQuaternion1);
@@ -156,8 +159,12 @@ namespace Fusion{
       state_(StateQuaternion1) = q1/normFactor;
       state_(StateQuaternion2) = q2/normFactor;
       state_(StateQuaternion3) = q3/normFactor;
-    }
+    }// method quatNormalize
 
+    /** Definiton of Prediction step in Extended Kalman Filter
+     * Parameter: Delta is for projecting the state till current filter time + delta
+     * All the processMatrix_ values and processMatrixJacobian_ are defined
+     */
     void EkfCore::predict(const double delta){
       DEBUG( "=============================Before Prediction Step=============================\n"
                   << "Delta: " << std::setprecision(14) << delta << endl
@@ -206,13 +213,7 @@ namespace Fusion{
       double dayHalf = day/2;
       double dazHalf = daz/2;
 
-      processMatrix_.eye(STATE_SIZE,STATE_SIZE); // @TODO: send it to Constructor
-
-      /** Note(1)
-      * Do the necessary transformations
-      * XYZ are in global frame so rotate Velocities, accelerations etc and fill
-      * components
-      **/
+      // Calculating processMatrix_ or transfer function in discretized form
       processMatrix_(StatePositionX,StateVelocityX) = r11*delta;
       processMatrix_(StatePositionX,StateVelocityY) = r12*delta;
       processMatrix_(StatePositionX,StateVelocityZ) = r13*delta;
@@ -254,6 +255,7 @@ namespace Fusion{
       double yCoeff = 2*(vy*delta + 0.5*delta*delta*ay);
       double zCoeff = 2*(vz*delta + 0.5*delta*delta*az);
 
+      // Updating the processMatrixJacobian_
       processMatrixJacobian_(StatePositionX,StateQuaternion0) =  q0*xCoeff - q3*yCoeff + q2*zCoeff;
       processMatrixJacobian_(StatePositionX,StateQuaternion1) =  q1*xCoeff + q2*yCoeff + q3*zCoeff;
       processMatrixJacobian_(StatePositionX,StateQuaternion2) = -q2*xCoeff + q1*yCoeff + q0*zCoeff;
@@ -305,11 +307,11 @@ namespace Fusion{
 
       // projecting state forward till lastFilterTime+delta
       state_ = processMatrix_*state_;
-      quatNormalize(); // for normalizing quaternion
 
-      // Project the process noise covariance forward @TODO need to initialise estimateErrorCovariance_ and processNoiseCovariance_
-      // @NOTE need to understand why we need delta in front of processNoiseCovariance_
-      // @TODO need to think about pointers (big matrices) atleast for processNoiseCovariance_
+      // Normalising quaternion
+      quatNormalize();
+
+      // Project the process noise covariance forward
       estimateErrorCovariance_ = processMatrixJacobian_*estimateErrorCovariance_*processMatrixJacobian_.t() + delta*processNoiseCovariance_;
       DEBUG("=============================Prediction Step=============================\n"
                   << "Delta: " << std::setprecision(14) << delta << endl
