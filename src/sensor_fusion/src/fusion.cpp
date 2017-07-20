@@ -127,7 +127,6 @@ namespace Fusion{
       updateVector[StateAcclerationX] = 1;
       updateVector[StateAcclerationY] = 1;
       updateVector[StateAcclerationZ] = 1;
-      // ROS_INFO_STREAM("updateVector: " << updateVector << endl);
 
       //Enqueuing the IMU measurement in the priority queue.
       FilterCore::SensorMeasurementPtr measurementPtr = FilterCore::SensorMeasurementPtr(new FilterCore::SensorMeasurement);
@@ -136,16 +135,16 @@ namespace Fusion{
       measurementPtr->covariance_ = covariance;
       measurementPtr->updateVector_ = updateVector;
       measurementPtr->time_ = msg->header.stamp.toSec();
-      // DEBUG("measurement_topic: " << measurementPtr->topicName_ << endl
-      //               <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
-      //               <<  "covariances: " << endl << measurementPtr->covariance_ << endl;
-      // )
+
+      // Adding measurements in the measurement queue
       addMeasurementinQueue(measurementPtr);
     } // method imu_cb
 
     void Ekf::gps_cb(const sensor_msgs::NavSatFix::ConstPtr& msg){
       // ROS_INFO("in gps call back");
       std::string zone;
+
+      // Takes the first measurement and subtracts it from subsequent measurements (Assuming coordinate system is NED)
       double initlonN, initlatE=0;
       if(!isGPSFirstMeasurement_){
         gps_common::LLtoUTM(msg->latitude, msg->longitude,initlonN, initlatE,zone);// Converting from lat, long to UTM
@@ -154,38 +153,40 @@ namespace Fusion{
         initialAltitude_ = msg->altitude;
         isGPSFirstMeasurement_ = true;
         // DEBUG("\ninitialgpsX: " << std::setprecision(10) << initialLatInNED_ << "\ninitialgpsY: " << initialLonInNED_ << "\ninitialgpsZ: " << initialAltitude_);
-
       }
+
       double latE=0;
       double lonN=0;
       gps_common::LLtoUTM(msg->latitude, msg->longitude,lonN, latE,zone);// Converting from lat, long to UTM
       double gpsX = lonN-initialLonInNED_;
       double gpsY = -latE+initialLatInNED_;
       double gpsZ = msg->altitude - initialAltitude_;
-      // DEBUG("\ngpsX: "<< std::setprecision(10) << gpsX << "\ngpsY: " << gpsY << "\ngpsZ: " << gpsZ);
+      DEBUG("\ngpsX: "<< std::setprecision(10) << gpsX << "\ngpsY: " << gpsY << "\ngpsZ: " << gpsZ);
+
+      // Filling the Position covariance
       arma::mat positionCovariance(POSITION_SIZE,POSITION_SIZE);
       positionCovariance.eye();
       for(int i=0; i<POSITION_SIZE; i++){
         positionCovariance(i,i) = msg-> position_covariance[i*POSITION_SIZE +i];
       }
-      ROS_INFO_STREAM("\n" << setprecision(10) <<gpsX);// << "," << gpsY << "," << gpsZ << endl);
+
+      DEBUG("\n" << setprecision(10) <<gpsX << "," << gpsY << "," << gpsZ << endl);
+
+      // Filling the measurement and covariance matrices
       arma::colvec measurement(STATE_SIZE);
       measurement.zeros();
       measurement(StatePositionX) = gpsX;
       measurement(StatePositionY) = gpsY;
       measurement(StatePositionZ) = gpsZ;
-
       arma::mat covariance(STATE_SIZE,STATE_SIZE);
       covariance.eye();
       covariance.submat(StatePositionX,StatePositionX,StatePositionZ,StatePositionZ) = positionCovariance;
 
       // updateVector
       std::vector<int> updateVector(STATE_SIZE,0);
-
       updateVector[StatePositionX] = 1;
       updateVector[StatePositionY] = 1;
       updateVector[StatePositionZ] = 1;
-      // ROS_INFO_STREAM("updateVector: " << updateVector << endl);
 
       //Enqueuing the IMU measurement in the priority queue.
       FilterCore::SensorMeasurementPtr measurementPtr = FilterCore::SensorMeasurementPtr(new FilterCore::SensorMeasurement);
@@ -194,23 +195,23 @@ namespace Fusion{
       measurementPtr->covariance_ = covariance;
       measurementPtr->updateVector_ = updateVector;
       measurementPtr->time_ = msg->header.stamp.toSec();
-      // DEBUG("measurement_topic: " << measurementPtr->topicName_ << endl
-      //               <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
-      //               <<  "covariances: " << endl << measurementPtr->covariance_ << endl;
-      // )
+
+      // Adding measurement in the queue
       addMeasurementinQueue(measurementPtr);
 
-      // delete zone;
     } // method gps_cb
 
     void Ekf::odom_cb(const nav_msgs::Odometry::ConstPtr& msg){
       ROS_INFO("in Odom call back");
+
+      // Extracting the position covariance
       arma::mat positionCovariance(POSITION_SIZE,POSITION_SIZE);
       positionCovariance.eye();
       for(int i=0; i<POSITION_SIZE; i++){
         positionCovariance(i,i) = msg->pose.covariance[i*POSITION_SIZE +i];
       }
 
+      // Extracting the orientation covariance
       arma::mat orientationCovariance(POSITION_SIZE,POSITION_SIZE);
       orientationCovariance.eye();
       for(int i=POSITION_SIZE; i<POSE_SIZE; i++){
@@ -219,13 +220,14 @@ namespace Fusion{
       arma::mat quaternionCovariance(QUAT_SIZE,QUAT_SIZE);
       quaternionCovariance.eye();
 
+      // Extracting the Twist covariance
       arma::mat twistCovariance(POSE_SIZE,POSE_SIZE);
       twistCovariance.eye();
       for(int i=0; i<POSE_SIZE; i++){
         twistCovariance(i,i) = msg->twist.covariance[i*POSE_SIZE+i];
       }
 
-
+      // Filling measurements
       arma::colvec measurement(STATE_SIZE);
       measurement.zeros();
       measurement(StatePositionX) = msg->pose.pose.position.x;
@@ -242,6 +244,7 @@ namespace Fusion{
       measurement(StateOmegaY) = msg->twist.twist.angular.y;
       measurement(StateOmegaZ) = msg->twist.twist.angular.z;
 
+      // Filling the covariance from measurement into datastructure in appropriate blocks
       arma::mat covariance(STATE_SIZE,STATE_SIZE);
       covariance.eye();
       covariance.submat(StatePositionX,StatePositionX,StatePositionZ,StatePositionZ) = positionCovariance;
@@ -250,7 +253,6 @@ namespace Fusion{
 
       // updateVector
       std::vector<int> updateVector(STATE_SIZE,0);
-
       updateVector[StatePositionX] = 1;
       updateVector[StatePositionY] = 1;
       updateVector[StatePositionZ] = 1;
@@ -264,7 +266,6 @@ namespace Fusion{
       updateVector[StateOmegaX] = 1;
       updateVector[StateOmegaY] = 1;
       updateVector[StateOmegaZ] = 1;
-      // ROS_INFO_STREAM("updateVector: " << updateVector << endl);
 
       //Enqueuing the IMU measurement in the priority queue.
       FilterCore::SensorMeasurementPtr measurementPtr = FilterCore::SensorMeasurementPtr(new FilterCore::SensorMeasurement);
@@ -273,13 +274,13 @@ namespace Fusion{
       measurementPtr->covariance_ = covariance;
       measurementPtr->updateVector_ = updateVector;
       measurementPtr->time_ = msg->header.stamp.toSec();
-      // DEBUG("measurement_topic: " << measurementPtr->topicName_ << endl
-      //               <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
-      //               <<  "covariances: " << endl << measurementPtr->covariance_ << endl;
-      // )
+
+      // Adding measurement in the measurement Queue
       addMeasurementinQueue(measurementPtr);
+
     } // method odom_cb
 
+    // Method for adding measurements into the queue
     void Ekf::addMeasurementinQueue(const FilterCore::SensorMeasurementPtr& measurementPtr){
       measurementPtrQueue_.push(measurementPtr);
     } // method addMeasurementinQueue
@@ -288,21 +289,22 @@ namespace Fusion{
       ROS_INFO("Destroying the EKF constructor");
     } // Destructor
 
+    // Method for integrating the measurements and updating the state using EKF
+    // In this method we are going to integrate and run EKF
     void Ekf::integrateSensorMeasurements(){
-      // In this method we are going to integrate and run EKF
       FilterCore::SensorMeasurementPtr measurementPtr;
       while(ros::ok() && !measurementPtrQueue_.empty()){
+        // Taking the first measurement from measurement container
         measurementPtr = measurementPtrQueue_.top();
         measurementPtrQueue_.pop();
-        // DEBUG("measurements using for integration:" << endl
-        //               << "measurement_topic: " << measurementPtr->topicName_ << endl
-        //               <<  "measurements: " << endl<< measurementPtr->measurement_ << endl
-        //               <<  "covariances: " << endl << measurementPtr->covariance_ << endl)
+
+        // Check if the filter is initialised or not. If not then initialise the filter with measurements and their covariance
         if(filter_.getInitialisedStatus()){
           double delta = measurementPtr->time_ - filter_.getLastMeasurementTime();
-          // ROS_INFO_STREAM("delta: " << std::setprecision(20) << delta << endl);
 
-          if(delta>0){ // Do not entertain delayed or out of sequence measurements
+          // Asynchronous method for integrating the measurements
+          // Delta > 0 ensures that doesnt entertain delayed or out of sequence measurements
+          if(delta>0){
             filter_.predict(delta);
             filter_.update(measurementPtr,ros::Time::now().toSec());
           }
@@ -315,6 +317,8 @@ namespace Fusion{
           state.zeros();
           estimateErrorCovariance.eye();
           estimateErrorCovariance *=1e-5;
+
+          // Fill the state vector with measurement
           size_t measurementLength = measurementPtr->updateVector_.size();
           for (size_t i = 0; i < measurementLength; ++i)
           {
@@ -331,6 +335,8 @@ namespace Fusion{
                                                 estimateErrorCovariance(i, j));
             }
           }
+
+          // Set the filter state and covariances with the initialised values
           filter_.setState(state);
           filter_.setEstimateErrorCovariance(estimateErrorCovariance);
           filter_.setLastMeasurementTime(measurementPtr->time_);
