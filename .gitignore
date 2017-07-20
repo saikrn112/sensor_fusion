@@ -5,4 +5,4 @@ build/*
 logs/*
 bagfiles/*.csv
 bagfiles/*.csv#
-
+bagfiles/*.bag
