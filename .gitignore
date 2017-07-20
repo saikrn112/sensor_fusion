@@ -3,3 +3,6 @@ build/*
 .catkin_workspace
 .catkin_tools/*
 logs/*
+bagfiles/*.csv
+bagfiles/*.csv#
+
