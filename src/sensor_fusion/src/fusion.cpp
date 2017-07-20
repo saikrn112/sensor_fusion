@@ -33,7 +33,7 @@ namespace Fusion{
       nav_msgs::Odometry fusedState;
 
       // Rate at which node should publish
-      ros::Rate rate(100);
+      ros::Rate rate(30);
 
       while(ros::ok()){
         // Integrate Measurments and update the state
