@@ -28,12 +28,12 @@
   1. [x] straight line - fusion, IMU alone, gps alone(from rl) and gps + IMU
   1. [x] circle - gpsloss fusion alone with RL
   1. [x] straight line - fusion GPS loss no RL
-- [ ] convert bagfiles to csv files
-  1. [ ] odometry/filtered_map = ground truth
-  1. [ ] odomCombined
-- [ ] plot the graphs from the csv files. Pain Sahfeeq!!!!!!
-- [ ] indicate markings in screenshot like gps loss etc
-- [ ] update the doc
+- [x] convert bagfiles to csv files
+  1. [x] odometry/filtered_map = ground truth
+  1. [x] odomCombined
+- [] plot the graphs from the csv files. Pain Sahfeeq!!!!!!
+- [x] indicate markings in screenshot like gps loss etc
+- [x] update the doc
 
 ## YetToDo
 - [x] converting GPS lat/long to NED positions using the library that was used in Team Abhiyaan
