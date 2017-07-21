@@ -49,7 +49,7 @@ namespace Fusion{
         dynamic_reconfigure::Server<sensor_fusion::fusionConfig> server;
         dynamic_reconfigure::Server<sensor_fusion::fusionConfig>::CallbackType f;
 
-        f = boost::bind(&Ekf::parameter_cb, _1, _2);
+        f = boost::bind(&Ekf::parameter_cb,this, _1, _2); // [refer: http://www.radmangames.com/programming/how-to-use-boost-bind]
         server.setCallback(f);
 
         // To publish at specified frequency
