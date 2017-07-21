@@ -21,18 +21,15 @@
 ## Very urgent
 - [x] complete documentation literature
 - [x] complete comments
-- [ ] collect the bagfiles of IMU alone
-- [ ] write code for moving the robot in a big circle.
-- [ ] collect the bagfiles of that expirement
-- [ ] simulate GPS loss for 10 seconds using dynamic parameter or using ROS time or we can use parameter to control ROS timer
-- [ ] collect the bagfiles of the same
-- [ ] collect bagfiles of husky odom for truth!!
+- [x] simulate GPS loss for 10 seconds using dynamic parameter or using ROS time or we can use parameter to control ROS timer
+- [x] write code for moving the robot in a big circle.
+- [ ] experiments - screenshots and plots; screenshots should have position of GPS loss and time for which it was lost
+  1. [ ] circle - rl:with odometry, gps and IMU, fusion- imu and gps alone
+  1. [ ] straight line - fusion, IMU alone, gps alone(from rl) and gps + IMU
+  1. [ ] circle - gpsloss fusion alone with RL
+  1. [ ] straight line - fusion GPS loss no RL
 - [ ] convert bagfiles to csv files
 - [ ] plot the graphs from the csv files. Pain Sahfeeq!!!!!!
-- [ ] experiments
-  1. circle - rl:with odometry, gps and IMU, fusion- imu and gps alone
-  1. straight line - fusion, IMU alone, gps alone(from rl) and gps + IMU
-  1. circle - gpsloss fusion alone 
 ## YetToDo
 - [x] converting GPS lat/long to NED positions using the library that was used in Team Abhiyaan
 - [x] check the error accumulation (characterise!!) with robot localisation
