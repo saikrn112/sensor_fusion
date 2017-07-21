@@ -148,64 +148,65 @@ namespace Fusion{
     } // method imu_cb
 
     void Ekf::gps_cb(const sensor_msgs::NavSatFix::ConstPtr& msg){
-      // ROS_INFO("in gps call back");
-      std::string zone;
+      if(shouldGPS){
+        ROS_INFO("in gps call back");
+        std::string zone;
 
-      // Takes the first measurement and subtracts it from subsequent measurements (Assuming coordinate system is NED)
-      double initlonN, initlatE=0;
-      if(!isGPSFirstMeasurement_){
-        gps_common::LLtoUTM(msg->latitude, msg->longitude,initlonN, initlatE,zone);// Converting from lat, long to UTM
-        initialLonInNED_ = initlonN;
-        initialLatInNED_ = initlatE;
-        initialAltitude_ = msg->altitude;
-        isGPSFirstMeasurement_ = true;
-        // DEBUG("\ninitialgpsX: " << std::setprecision(10) << initialLatInNED_ << "\ninitialgpsY: " << initialLonInNED_ << "\ninitialgpsZ: " << initialAltitude_);
+        // Takes the first measurement and subtracts it from subsequent measurements (Assuming coordinate system is NED)
+        double initlonN, initlatE=0;
+        if(!isGPSFirstMeasurement_){
+          gps_common::LLtoUTM(msg->latitude, msg->longitude,initlonN, initlatE,zone);// Converting from lat, long to UTM
+          initialLonInNED_ = initlonN;
+          initialLatInNED_ = initlatE;
+          initialAltitude_ = msg->altitude;
+          isGPSFirstMeasurement_ = true;
+          // DEBUG("\ninitialgpsX: " << std::setprecision(10) << initialLatInNED_ << "\ninitialgpsY: " << initialLonInNED_ << "\ninitialgpsZ: " << initialAltitude_);
+        }
+
+        double latE=0;
+        double lonN=0;
+        gps_common::LLtoUTM(msg->latitude, msg->longitude,lonN, latE,zone);// Converting from lat, long to UTM
+        double gpsX = lonN-initialLonInNED_;
+        double gpsY = -latE+initialLatInNED_;
+        double gpsZ = msg->altitude - initialAltitude_;
+        DEBUG("\ngpsX: "<< std::setprecision(10) << gpsX << "\ngpsY: " << gpsY << "\ngpsZ: " << gpsZ);
+
+        // Filling the Position covariance
+        arma::mat positionCovariance(POSITION_SIZE,POSITION_SIZE);
+        positionCovariance.eye();
+        for(int i=0; i<POSITION_SIZE; i++){
+          positionCovariance(i,i) = msg-> position_covariance[i*POSITION_SIZE +i];
+        }
+
+        DEBUG("\n" << setprecision(10) <<gpsX << "," << gpsY << "," << gpsZ << endl);
+
+        // Filling the measurement and covariance matrices
+        arma::colvec measurement(STATE_SIZE);
+        measurement.zeros();
+        measurement(StatePositionX) = gpsX;
+        measurement(StatePositionY) = gpsY;
+        measurement(StatePositionZ) = gpsZ;
+        arma::mat covariance(STATE_SIZE,STATE_SIZE);
+        covariance.eye();
+        covariance.submat(StatePositionX,StatePositionX,StatePositionZ,StatePositionZ) = positionCovariance;
+
+        // updateVector
+        std::vector<int> updateVector(STATE_SIZE,0);
+        updateVector[StatePositionX] = 1;
+        updateVector[StatePositionY] = 1;
+        updateVector[StatePositionZ] = 1;
+
+        //Enqueuing the IMU measurement in the priority queue.
+        FilterCore::SensorMeasurementPtr measurementPtr = FilterCore::SensorMeasurementPtr(new FilterCore::SensorMeasurement);
+        measurementPtr->topicName_ = "GPS";
+        measurementPtr->measurement_ = measurement;
+        measurementPtr->covariance_ = covariance;
+        measurementPtr->updateVector_ = updateVector;
+        measurementPtr->time_ = msg->header.stamp.toSec();
+
+        // Adding measurement in the queue
+        addMeasurementinQueue(measurementPtr);
       }
-
-      double latE=0;
-      double lonN=0;
-      gps_common::LLtoUTM(msg->latitude, msg->longitude,lonN, latE,zone);// Converting from lat, long to UTM
-      double gpsX = lonN-initialLonInNED_;
-      double gpsY = -latE+initialLatInNED_;
-      double gpsZ = msg->altitude - initialAltitude_;
-      DEBUG("\ngpsX: "<< std::setprecision(10) << gpsX << "\ngpsY: " << gpsY << "\ngpsZ: " << gpsZ);
-
-      // Filling the Position covariance
-      arma::mat positionCovariance(POSITION_SIZE,POSITION_SIZE);
-      positionCovariance.eye();
-      for(int i=0; i<POSITION_SIZE; i++){
-        positionCovariance(i,i) = msg-> position_covariance[i*POSITION_SIZE +i];
-      }
-
-      DEBUG("\n" << setprecision(10) <<gpsX << "," << gpsY << "," << gpsZ << endl);
-
-      // Filling the measurement and covariance matrices
-      arma::colvec measurement(STATE_SIZE);
-      measurement.zeros();
-      measurement(StatePositionX) = gpsX;
-      measurement(StatePositionY) = gpsY;
-      measurement(StatePositionZ) = gpsZ;
-      arma::mat covariance(STATE_SIZE,STATE_SIZE);
-      covariance.eye();
-      covariance.submat(StatePositionX,StatePositionX,StatePositionZ,StatePositionZ) = positionCovariance;
-
-      // updateVector
-      std::vector<int> updateVector(STATE_SIZE,0);
-      updateVector[StatePositionX] = 1;
-      updateVector[StatePositionY] = 1;
-      updateVector[StatePositionZ] = 1;
-
-      //Enqueuing the IMU measurement in the priority queue.
-      FilterCore::SensorMeasurementPtr measurementPtr = FilterCore::SensorMeasurementPtr(new FilterCore::SensorMeasurement);
-      measurementPtr->topicName_ = "GPS";
-      measurementPtr->measurement_ = measurement;
-      measurementPtr->covariance_ = covariance;
-      measurementPtr->updateVector_ = updateVector;
-      measurementPtr->time_ = msg->header.stamp.toSec();
-
-      // Adding measurement in the queue
-      addMeasurementinQueue(measurementPtr);
-
     } // method gps_cb
 
     void Ekf::odom_cb(const nav_msgs::Odometry::ConstPtr& msg){
@@ -291,6 +292,7 @@ namespace Fusion{
     void Ekf::parameter_cb(sensor_fusion::fusionConfig &config, uint32_t level) {
       ROS_INFO("Reconfigure Request:%s ",
             config.gps?"True":"False");
+            shouldGPS = config.gps?true:false;
     } // method parameter_cb
 
     // Method for adding measurements into the queue

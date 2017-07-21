@@ -109,6 +109,9 @@ namespace Fusion{
       // Stores initial Altitude for placing coordinate system at initial location
       double initialAltitude_;
 
+      // Dynamic parameter for unlocking and locking GPS
+      bool shouldGPS;
+
     public:
       // Constructor
       /** This constructor takes the node Handle and registers IMU, GPS and Odom Callback with rosmaster
