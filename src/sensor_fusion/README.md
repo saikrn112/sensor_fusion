@@ -23,13 +23,18 @@
 - [x] complete comments
 - [x] simulate GPS loss for 10 seconds using dynamic parameter or using ROS time or we can use parameter to control ROS timer
 - [x] write code for moving the robot in a big circle.
-- [ ] experiments - screenshots and plots; screenshots should have position of GPS loss and time for which it was lost
-  1. [ ] circle - rl:with odometry, gps and IMU, fusion- imu and gps alone
-  1. [ ] straight line - fusion, IMU alone, gps alone(from rl) and gps + IMU
-  1. [ ] circle - gpsloss fusion alone with RL
-  1. [ ] straight line - fusion GPS loss no RL
+- [x] experiments - screenshots and plots; screenshots should have position of GPS loss and time for which it was lost
+  1. [x] circle - rl:with odometry, gps and IMU, fusion- imu and gps alone
+  1. [x] straight line - fusion, IMU alone, gps alone(from rl) and gps + IMU
+  1. [x] circle - gpsloss fusion alone with RL
+  1. [x] straight line - fusion GPS loss no RL
 - [ ] convert bagfiles to csv files
+  1. [ ] odometry/filtered_map = ground truth
+  1. [ ] odomCombined
 - [ ] plot the graphs from the csv files. Pain Sahfeeq!!!!!!
+- [ ] indicate markings in screenshot like gps loss etc
+- [ ] update the doc
+
 ## YetToDo
 - [x] converting GPS lat/long to NED positions using the library that was used in Team Abhiyaan
 - [x] check the error accumulation (characterise!!) with robot localisation
